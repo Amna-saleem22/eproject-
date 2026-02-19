@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema(
   {
+    user: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "User",
+  required: true,
+},
     guestName: { type: String, required: true },
     phone: { type: String, required: true },
 
@@ -23,9 +28,24 @@ const bookingSchema = new mongoose.Schema(
     roomCost: Number,
     foodCost: Number,
     totalAmount: Number,
+    
+    extraServices: [
+  {
+    serviceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Service",
+    },
+    name: String,
+    price: Number,
+  },
+],
+
 
     status: { type: String, default: "Pending" },
+
+    
   },
+  
   { timestamps: true }
 );
 
