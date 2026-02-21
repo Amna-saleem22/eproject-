@@ -10,6 +10,7 @@ import feedbackRoutes from "./routes/feedbackRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 
+import adminRoutes from "./routes/adminRoutes.js";
 const app = express();
 
 app.use(cors());
@@ -17,6 +18,7 @@ app.use(express.json());
 
 connectDB();
 
+app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/feedback", feedbackRoutes);

@@ -277,10 +277,17 @@ export default function LoginPage() {
       });
 
       localStorage.setItem("token", res.data.token);
-
+localStorage.setItem("role", res.data.user.role);
       alert("Login Successful ✅");
+const role = res.data.user.role;
 
-      navigate("/dashboard"); // role based logic bhi laga sakte ho
+if (role === "admin") {
+  navigate("/admin");
+} else if (role === "staff") {
+  navigate("/staff");
+} else {
+  navigate("/dashboard");
+}// role based daslogic bhi laga sakte ho
     } catch (error) {
       alert(error.response?.data?.message || "Login Failed ❌");
     } finally {

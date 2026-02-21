@@ -26,6 +26,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import HomeIcon from '@mui/icons-material/Home';
 import InfoIcon from '@mui/icons-material/Info';
 import HotelIcon from '@mui/icons-material/Hotel';
+import BadgeIcon from '@mui/icons-material/Badge';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+
 import ArticleIcon from '@mui/icons-material/Article';
 import RateReviewIcon from '@mui/icons-material/RateReview';
 import ContactMailIcon from '@mui/icons-material/ContactMail';
@@ -42,7 +45,12 @@ const Navbar = () => {
   const { scrollY } = useScroll();
 
   const token = localStorage.getItem('token'); // <-- login check
-
+ const role = localStorage.getItem("role");
+ const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    window.location.href = "/";
+  };
   // ================= NAV ITEMS =================
   const publicItems = [
     { text: 'Home', path: '/', icon: <HomeIcon /> },
@@ -53,24 +61,30 @@ const Navbar = () => {
     { text: 'Contact', path: '/contact', icon: <ContactMailIcon /> },
     { text: 'Login', path: '/login', icon: <LoginIcon /> },
   ];
+// ===== STAFF =====
+  const staffItems = [
+    { text: "Staff Panel", path: "/staff", icon: <BadgeIcon /> },
+    { text: "Logout", action: handleLogout, icon: <LoginIcon /> },
+  ];
+   const adminItems = [
+    { text: "Admin Panel", path: "/admin", icon: <AdminPanelSettingsIcon /> },
+     { text: "Logout", action: handleLogout, icon: <LoginIcon /> },
+  ];
 
   const userItems = [
     { text: 'Dashboard', path: '/dashboard', icon: <HomeIcon /> },
     { text: 'Booking', path: '/booking', icon: <HotelIcon /> },
     { text: 'Feedback', path: '/feedback', icon: <RateReviewIcon /> },
-    {
-      text: 'Logout',
-      path: '/login',
-      icon: <LoginIcon />,
-      action: () => {
-        localStorage.removeItem('token');
-        window.location.href = '/';
-      },
-    },
+     { text: "Logout", action: handleLogout, icon: <LoginIcon /> },
+      
   ];
 
-  const navItems = token ? userItems : publicItems;
-
+  let navItems = token ? userItems : publicItems;
+if (token) {
+    if (role === "admin") navItems = adminItems;
+    else if (role === "staff") navItems = staffItems;
+    else navItems = userItems;
+  }
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };

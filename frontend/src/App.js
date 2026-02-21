@@ -85,16 +85,25 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Room from "./components/Room";
 import Contact from "./components/Contact";
-
+// NEW
+import AdminDashboard from "./pages/AdminDashboard";
+import StaffDashboard from "./pages/StaffDashboard";
 // Protected Route
-function ProtectedRoute({ children }) {
+function ProtectedRoute({ children, allowedRole }) {
   const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+
   if (!token) return <Navigate to="/login" replace />;
+
+  if (allowedRole && role !== allowedRole)
+    return <Navigate to="/" replace />;
+
   return children;
 }
 
 export default function App() {
   const token = localStorage.getItem("token");
+ const role = localStorage.getItem("role");
 
   return (
     <BrowserRouter>
@@ -105,18 +114,54 @@ export default function App() {
         <Route path="/about" element={<About />} />
         <Route path="/rooms" element={<Room />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/login" element={token ? <Navigate to="/dashboard" replace /> : <LoginPage />} />
+        <Route
+          path="/login"
+          element={
+            token ? (
+              role === "admin" ? (
+                <Navigate to="/admin" />
+              ) : role === "staff" ? (
+                <Navigate to="/staff" />
+              ) : (
+                <Navigate to="/dashboard" />
+              )
+            ) : (
+              <LoginPage />
+            )
+          }
+        />
         <Route path="/register" element={token ? <Navigate to="/dashboard" replace /> : <RegisterPage />} />
 
         {/* ================= DASHBOARD ================= */}
         <Route path="/dashboard" element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRole="guest">
             <DashboardPage>
               <BookingForm />
               <FeedbackPage />
             </DashboardPage>
           </ProtectedRoute>
         } />
+
+         {/* STAFF */}
+        <Route
+          path="/staff"
+          element={
+            <ProtectedRoute allowedRole="staff">
+              <StaffDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+
+        {/* ADMIN */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRole="admin">
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
 
         {/* ================= BOOKING ================= */}
         <Route path="/booking" element={<ProtectedRoute><BookingForm /></ProtectedRoute>} />
