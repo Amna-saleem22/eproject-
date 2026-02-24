@@ -204,6 +204,301 @@
 
 
 
+// import React, { useState } from "react";
+// import {
+//   Box,
+//   Container,
+//   Typography,
+//   TextField,
+//   Button,
+//   Paper,
+//   Link,
+//   InputAdornment,
+//   IconButton,
+//   Divider,
+//   Checkbox,
+//   FormControlLabel,
+//   Alert,
+//   Stack,
+// } from "@mui/material";
+// import { motion } from "framer-motion";
+// import { Link as RouterLink, useNavigate } from "react-router-dom";
+// import EmailIcon from "@mui/icons-material/Email";
+// import LockIcon from "@mui/icons-material/Lock";
+// import VisibilityIcon from "@mui/icons-material/Visibility";
+// import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+// import DiamondIcon from "@mui/icons-material/Diamond";
+// import axiosInstance from "../api/axiosInstance";
+
+// export default function LoginPage() {
+//   const navigate = useNavigate();
+
+//   const [showPassword, setShowPassword] = useState(false);
+//   const [formData, setFormData] = useState({
+//     email: "",
+//     password: "",
+//     rememberMe: false,
+//   });
+
+//   const [errors, setErrors] = useState({});
+//   const [loading, setLoading] = useState(false);
+
+//   const handleChange = (e) => {
+//     const { name, value, checked } = e.target;
+//     setFormData((prev) => ({
+//       ...prev,
+//       [name]: name === "rememberMe" ? checked : value,
+//     }));
+//   };
+
+//   const validateForm = () => {
+//     const newErrors = {};
+//     if (!formData.email) newErrors.email = "Email is required";
+//     if (!formData.password) newErrors.password = "Password is required";
+//     return newErrors;
+//   };
+
+//   // ✅ YOUR ORIGINAL LOGIN LOGIC ADDED HERE
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+
+//     const validationErrors = validateForm();
+//     if (Object.keys(validationErrors).length !== 0) {
+//       setErrors(validationErrors);
+//       return;
+//     }
+
+//     try {
+//       setLoading(true);
+
+//       const res = await axiosInstance.post("/auth/login", {
+//         email: formData.email,
+//         password: formData.password,
+//       });
+
+//       localStorage.setItem("token", res.data.token);
+// localStorage.setItem("role", res.data.user.role);
+//       alert("Login Successful ✅");
+// const role = res.data.user.role;
+
+// if (role === "admin") {
+//   navigate("/admin");
+// } else if (role === "staff") {
+//   navigate("/staff");
+// } else {
+//   navigate("/dashboard");
+// }// role based daslogic bhi laga sakte ho
+//     } catch (error) {
+//       alert(error.response?.data?.message || "Login Failed ❌");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <Box
+//       sx={{
+//         minHeight: "100vh",
+//         background: "linear-gradient(135deg, #0a0a0a 0%, #111111 100%)",
+//         display: "flex",
+//         alignItems: "center",
+//         justifyContent: "center",
+//       }}
+//     >
+//       <Container maxWidth="sm">
+//         <Paper
+//           elevation={24}
+//           sx={{
+//             p: 5,
+//             background:
+//               "linear-gradient(135deg, rgba(18,18,18,0.95) 0%, rgba(10,10,10,0.95) 100%)",
+//             border: "1px solid rgba(13,71,161,0.3)",
+//             borderRadius: 4,
+//           }}
+//         >
+//           {/* Logo */}
+//           <Box
+//             sx={{
+//               display: "flex",
+//               justifyContent: "center",
+//               alignItems: "center",
+//               mb: 4,
+//             }}
+//           >
+//             <DiamondIcon sx={{ fontSize: 40, color: "#0d47a1", mr: 1 }} />
+//             <Typography
+//               variant="h5"
+//               sx={{
+//                 fontWeight: 700,
+//                 background: "linear-gradient(135deg, #fff 30%, #0d47a1 90%)",
+//                 WebkitBackgroundClip: "text",
+//                 WebkitTextFillColor: "transparent",
+//               }}
+//             >
+//               LUXURY STAY
+//             </Typography>
+//           </Box>
+
+//           <Typography
+//             variant="h5"
+//             align="center"
+//             sx={{ color: "white", mb: 3 }}
+//           >
+//             Welcome Back
+//           </Typography>
+
+//           <form onSubmit={handleSubmit}>
+//             <Stack spacing={3}>
+//               {/* Email */}
+//               <TextField
+//                 fullWidth
+//                 name="email"
+//                 label="Email"
+//                 value={formData.email}
+//                 onChange={handleChange}
+//                 error={!!errors.email}
+//                 helperText={errors.email}
+//                 InputProps={{
+//                   startAdornment: (
+//                     <InputAdornment position="start">
+//                       <EmailIcon sx={{ color: "#0d47a1" }} />
+//                     </InputAdornment>
+//                   ),
+//                 }}
+//                 sx={darkFieldStyle}
+//               />
+
+//               {/* Password */}
+//               <TextField
+//                 fullWidth
+//                 name="password"
+//                 label="Password"
+//                 type={showPassword ? "text" : "password"}
+//                 value={formData.password}
+//                 onChange={handleChange}
+//                 error={!!errors.password}
+//                 helperText={errors.password}
+//                 InputProps={{
+//                   startAdornment: (
+//                     <InputAdornment position="start">
+//                       <LockIcon sx={{ color: "#0d47a1" }} />
+//                     </InputAdornment>
+//                   ),
+//                   endAdornment: (
+//                     <InputAdornment position="end">
+//                       <IconButton
+//                         onClick={() => setShowPassword(!showPassword)}
+//                         sx={{ color: "white" }}
+//                       >
+//                         {showPassword ? (
+//                           <VisibilityOffIcon />
+//                         ) : (
+//                           <VisibilityIcon />
+//                         )}
+//                       </IconButton>
+//                     </InputAdornment>
+//                   ),
+//                 }}
+//                 sx={darkFieldStyle}
+//               />
+
+//               {/* Remember Me */}
+//               <FormControlLabel
+//                 control={
+//                   <Checkbox
+//                     name="rememberMe"
+//                     checked={formData.rememberMe}
+//                     onChange={handleChange}
+//                     sx={{
+//                       color: "#0d47a1",
+//                       "&.Mui-checked": { color: "#0d47a1" },
+//                     }}
+//                   />
+//                 }
+//                 label={
+//                   <Typography sx={{ color: "rgba(255,255,255,0.7)" }}>
+//                     Remember me
+//                   </Typography>
+//                 }
+//               />
+
+//               {/* Login Button */}
+//               <motion.div whileHover={{ scale: 1.02 }}>
+//                 <Button
+//                   type="submit"
+//                   fullWidth
+//                   variant="contained"
+//                   disabled={loading}
+//                   sx={{
+//                     background:
+//                       "linear-gradient(135deg, #0d47a1 30%, #1565c0 90%)",
+//                     py: 1.5,
+//                     fontWeight: 600,
+//                   }}
+//                 >
+//                   {loading ? "Signing In..." : "Sign In"}
+//                 </Button>
+//               </motion.div>
+
+//               <Divider sx={{ borderColor: "rgba(255,255,255,0.2)" }} />
+
+//               {/* Register Link */}
+//               <Typography
+//                 align="center"
+//                 sx={{ color: "rgba(255,255,255,0.7)" }}
+//               >
+//                 Don’t have an account?{" "}
+//                 <Link
+//                   component={RouterLink}
+//                   to="/register"
+//                   sx={{ color: "#0d47a1", fontWeight: 600 }}
+//                 >
+//                   Create Account
+//                 </Link>
+//               </Typography>
+//             </Stack>
+//           </form>
+//         </Paper>
+//       </Container>
+//     </Box>
+//   );
+// }
+
+// const darkFieldStyle = {
+//   "& .MuiOutlinedInput-root": {
+//     color: "white",
+//     "& fieldset": {
+//       borderColor: "rgba(13,71,161,0.3)",
+//     },
+//     "&:hover fieldset": {
+//       borderColor: "#0d47a1",
+//     },
+//     "&.Mui-focused fieldset": {
+//       borderColor: "#0d47a1",
+//     },
+//   },
+//   "& .MuiInputLabel-root": {
+//     color: "rgba(255,255,255,0.7)",
+//     "&.Mui-focused": {
+//       color: "#0d47a1",
+//     },
+//   },
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useState } from "react";
 import {
   Box,
@@ -234,6 +529,8 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
+  const [serverError, setServerError] = useState("");
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -243,14 +540,25 @@ export default function LoginPage() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
+  // ================= HANDLE INPUT =================
   const handleChange = (e) => {
     const { name, value, checked } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: name === "rememberMe" ? checked : value,
     }));
+
+    // Clear field error
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
+
+    setServerError("");
   };
 
+  // ================= VALIDATION =================
   const validateForm = () => {
     const newErrors = {};
     if (!formData.email) newErrors.email = "Email is required";
@@ -258,42 +566,36 @@ export default function LoginPage() {
     return newErrors;
   };
 
-  // ✅ YOUR ORIGINAL LOGIN LOGIC ADDED HERE
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // ================= LOGIN =================
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const validationErrors = validateForm();
-    if (Object.keys(validationErrors).length !== 0) {
-      setErrors(validationErrors);
-      return;
-    }
+  const validationErrors = validateForm();
+  if (Object.keys(validationErrors).length) {
+    setErrors(validationErrors);
+    return;
+  }
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
+    const res = await axiosInstance.post("/auth/login", {
+      email: formData.email,
+      password: formData.password,
+    });
 
-      const res = await axiosInstance.post("/auth/login", {
-        email: formData.email,
-        password: formData.password,
-      });
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("role", res.data.user.role);
 
-      localStorage.setItem("token", res.data.token);
-localStorage.setItem("role", res.data.user.role);
-      alert("Login Successful ✅");
-const role = res.data.user.role;
-
-if (role === "admin") {
-  navigate("/admin");
-} else if (role === "staff") {
-  navigate("/staff");
-} else {
-  navigate("/dashboard");
-}// role based daslogic bhi laga sakte ho
-    } catch (error) {
-      alert(error.response?.data?.message || "Login Failed ❌");
-    } finally {
-      setLoading(false);
-    }
-  };
+    const role = res.data.user.role;
+    if (role === "admin") navigate("/admin");
+    else if (role === "staff") navigate("/staff");
+    else navigate("/dashboard");
+  } catch (err) {
+    alert(err.response?.data?.message || "Login failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <Box
@@ -346,6 +648,13 @@ if (role === "admin") {
           >
             Welcome Back
           </Typography>
+
+          {/* Server Error */}
+          {serverError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {serverError}
+            </Alert>
+          )}
 
           <form onSubmit={handleSubmit}>
             <Stack spacing={3}>
@@ -422,7 +731,7 @@ if (role === "admin") {
                 }
               />
 
-              {/* Login Button */}
+              {/* Button */}
               <motion.div whileHover={{ scale: 1.02 }}>
                 <Button
                   type="submit"
@@ -442,7 +751,6 @@ if (role === "admin") {
 
               <Divider sx={{ borderColor: "rgba(255,255,255,0.2)" }} />
 
-              {/* Register Link */}
               <Typography
                 align="center"
                 sx={{ color: "rgba(255,255,255,0.7)" }}

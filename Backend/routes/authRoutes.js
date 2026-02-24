@@ -1,28 +1,13 @@
-// import express from "express";
-// import { registerUser, loginUser } from "../controllers/authController.js";
 
-// import { protect } from "../middleware/authMiddleware.js";
 
-// const router = express.Router();
-
-// router.get("/profile", protect, async (req, res) => {
-//   res.json(req.user);
-// });
-// router.post("/register", registerUser);
-// router.post("/login", loginUser);
-
-// export default router;
+// routes/authRoutes.js
 import express from "express";
 import { registerUser, loginUser } from "../controllers/authController.js";
-import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/register", registerUser);
+// Public routes
+router.post("/register", registerUser); // Always creates guest
 router.post("/login", loginUser);
-
-router.get("/profile", protect, (req, res) => {
-  res.json(req.user);
-});
 
 export default router;

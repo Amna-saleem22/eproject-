@@ -11,4 +11,14 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
+// ✅ Intercept response to handle errors gracefully
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Return error without logging to console for expected HTTP errors (4xx/5xx)
+    // This prevents console noise for expected errors like 401, 404, etc.
+    return Promise.reject(error);
+  }
+);
+
 export default axiosInstance;
