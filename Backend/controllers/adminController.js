@@ -1,62 +1,38 @@
-// controllers/adminController.js
+import Booking from "../models/Booking.js";
 import User from "../models/User.js";
 
-// ============================
-// Admin Only: Create Staff User
-// ============================
-export const createStaff = async (req, res) => {
+// ✅ Get all pending bookings for admin dashboard
+export const getPendingBookings = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    // Fetch all bookings with status pending
+    const pendingBookings = await Booking.find({ status: "pending" })
+      .populate("guestId", "name email"); // guest info
 
-    // Validate input
-    if (!name || !email || !password) {
-      return res.status(400).json({ 
-        success: false,
-        message: "Please provide name, email and password" 
-      });
-    }
-
-    // Check if user already exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ 
-        success: false,
-        message: "User with this email already exists" 
-      });
-    }
-
-    // Validate password strength (optional but recommended)
-    if (password.length < 6) {
-      return res.status(400).json({ 
-        success: false,
-        message: "Password must be at least 6 characters" 
-      });
-    }
-
-    // Create staff user
-    const staff = await User.create({
-      name,
-      email,
-      password, // Will be hashed by pre-save hook
-      role: "staff", // Explicitly set role to staff
+    res.status(200).json({
+      message: "Pending bookings fetched successfully",
+      bookings: pendingBookings,
     });
-
-    // Remove password from response
-    const staffResponse = staff.toObject();
-    delete staffResponse.password;
-
-    res.status(201).json({
-      success: true,
-      message: "Staff created successfully",
-      staff: staffResponse,
-    });
-
   } catch (error) {
-    console.error("Create staff error:", error);
-    res.status(500).json({ 
-      success: false,
-      message: "Server Error", 
-      error: error.message 
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ✅ Confirm a booking by admin
+export const confirmBooking = async (req, res) => {
+  try {
+    const bookingId = req.params.id;
+
+    const booking = await Booking.findById(bookingId);
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+    booking.status = "confirmed"; // update status
+    await booking.save();
+
+    res.status(200).json({
+      message: "Booking confirmed successfully",
+      booking,
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
