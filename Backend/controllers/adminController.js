@@ -1,38 +1,93 @@
 import Booking from "../models/Booking.js";
-import User from "../models/User.js";
 
-// ✅ Get all pending bookings for admin dashboard
-export const getPendingBookings = async (req, res) => {
+// Get all bookings (Admin)
+export const getAllBookings = async (req, res) => {
   try {
-    // Fetch all bookings with status pending
-    const pendingBookings = await Booking.find({ status: "pending" })
-      .populate("guestId", "name email"); // guest info
+    const bookings = await Booking.find()
+      .populate("user", "name email")
+      .sort({ createdAt: -1 });
 
-    res.status(200).json({
-      message: "Pending bookings fetched successfully",
-      bookings: pendingBookings,
+    res.status(200).json(bookings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Confirm a booking (Admin)
+export const confirmBooking = async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+
+    if (!booking)
+      return res.status(404).json({ message: "Booking not found ❌" });
+
+    booking.status = "confirmed";
+    await booking.save();
+
+    res.json({
+      message: "Booking confirmed ✅",
+      booking,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// ✅ Confirm a booking by admin
-export const confirmBooking = async (req, res) => {
+// Cancel a booking (Admin)
+export const cancelBooking = async (req, res) => {
   try {
-    const bookingId = req.params.id;
+    const booking = await Booking.findById(req.params.id);
 
-    const booking = await Booking.findById(bookingId);
-    if (!booking) return res.status(404).json({ message: "Booking not found" });
+    if (!booking)
+      return res.status(404).json({ message: "Booking not found ❌" });
 
-    booking.status = "confirmed"; // update status
+    booking.status = "cancelled";
+    booking.extraServices = []; // optional
     await booking.save();
 
-    res.status(200).json({
-      message: "Booking confirmed successfully",
+    res.json({
+      message: "Booking cancelled ❌",
       booking,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// // Update any booking status or details (Admin)
+// export const updateBookingStatus = async (req, res) => {
+//   try {
+//     const { status } = req.body;
+
+//     if (!["pending", "confirmed", "cancelled"].includes(status)) {
+//       return res.status(400).json({ message: "Invalid status value ❌" });
+//     }
+
+//     const booking = await Booking.findById(req.params.id);
+
+//     if (!booking) return res.status(404).json({ message: "Booking not found ❌" });
+
+//     booking.status = status;
+//     await booking.save();
+
+//     res.json({ message: "Booking status updated ✅", booking });
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+
+export const updateBookingStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!["pending", "confirmed", "cancelled"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    const booking = await Booking.findByIdAndUpdate(id, { status }, { new: true });
+    res.json(booking);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };

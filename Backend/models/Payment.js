@@ -23,11 +23,12 @@ const paymentSchema = new mongoose.Schema(
     cardNumber: String,
     expiry: String,
 
-    paymentStatus: {
-      type: String,
-      enum: ["Pending", "Paid"],
-      default: "Pending",
-    },
+   paymentStatus: {
+  type: String,
+  enum: ["pending", "paid", "failed"], // add lowercase pending/paid
+  required: true,
+  default: "pending"
+},
 
     transactionId: String,
   },
