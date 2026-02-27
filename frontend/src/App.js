@@ -225,7 +225,11 @@ import Contact from "./components/Contact";
 // Role Dashboards
 import AdminDashboard from "./pages/AdminDashboard";
 import StaffDashboard from "./pages/StaffDashboard";
-
+import AdminFeedback from "./pages/AdminFeedback";
+import AdminRegisteredUsers from "./pages/AdminRegisteredUsers";
+import AdminCreateStaff from "./pages/AdminCreateStaff";
+import AdminStafflist from "./pages/AdminStafflist";
+import AdminRooms from "./pages/AdminRooms";
 
 // ================= PROTECTED ROUTE =================
 function ProtectedRoute({ children, allowedRole }) {
@@ -317,6 +321,57 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/adminfeedback"
+           element={
+            <ProtectedRoute allowedRole="admin">
+              <AdminFeedback />
+            </ProtectedRoute>
+          }
+        />
+        <Route/>
+         <Route
+          path="/adminusers"
+           element={
+            <ProtectedRoute allowedRole="admin">
+              <AdminRegisteredUsers />
+            </ProtectedRoute>
+          }
+        />
+        <Route/>
+
+         <Route/>
+         <Route
+          path="/adminrooms"
+           element={
+            <ProtectedRoute allowedRole="admin">
+              <AdminRooms />
+            </ProtectedRoute>
+          }
+        />
+        <Route/>
+        
+        <Route/>
+         <Route
+          path="/admincreatestaff"
+           element={
+            <ProtectedRoute allowedRole="admin">
+              <AdminCreateStaff />
+            </ProtectedRoute>
+          }
+        />
+        <Route/>
+         <Route/>
+         <Route
+          path="/adminstafflist"
+           element={
+            <ProtectedRoute allowedRole="admin">
+              <AdminStafflist />
+            </ProtectedRoute>
+          }
+        />
+        <Route/>
+
 
         {/* ================= BOOKING FLOW ================= */}
         <Route

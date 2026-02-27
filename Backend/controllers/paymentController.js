@@ -1,99 +1,7 @@
-// import mongoose from "mongoose";
-// import Payment from "../models/Payment.js";
-// import Booking from "../models/Booking.js";
-
-// // ----------------------
-// // Create Payment
-// // POST /payments/pay
-// export const makePayment = async (req, res) => {
-//   try {
-//     const {
-//       bookingId,
-//       method,
-//       customerName,
-//       email,
-//       nameOnCard,
-//       cardNumber,
-//       expiry,
-//     } = req.body;
-
-//     // Validate bookingId
-//     if (!mongoose.Types.ObjectId.isValid(bookingId)) {
-//       return res.status(400).json({ message: "Invalid bookingId" });
-//     }
-
-//     // Check booking exists
-//     const booking = await Booking.findById(bookingId);
-//     if (!booking) {
-//       return res.status(404).json({ message: "Booking not found" });
-//     }
-
-//     // Decide payment status
-//     const paymentStatus = method === "Cash" ? "Pending" : "Paid";
-
-//     // Create Payment Record
-//     const payment = await Payment.create({
-//       bookingId: new mongoose.Types.ObjectId(bookingId),
-//       method,
-//       customerName: method === "Online" ? customerName : null,
-//       email: method === "Online" ? email : null,
-//       nameOnCard: method === "Online" ? nameOnCard : null,
-//       cardNumber: method === "Online" ? cardNumber : null,
-//       expiry: method === "Online" ? expiry : null,
-//       paymentStatus,
-//       transactionId: method === "Online" ? "TXN" + Date.now() : null,
-//     });
-
-//     // Update Booking Status
-//     booking.status = method === "Cash" ? "Reserved" : "Confirmed";
-//     await booking.save();
-
-//     res.status(201).json({
-//       message: "Payment Saved Successfully ✅",
-//       payment,
-//     });
-//   } catch (error) {
-//     console.error("Payment Error:", error);
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
-// // ----------------------
-// // Get Payment by Booking ID
-// // GET /payments/booking/:bookingId
-// export const getPaymentByBookingId = async (req, res) => {
-//   try {
-//     const { bookingId } = req.params;
-
-//     // Validate bookingId
-//     if (!mongoose.Types.ObjectId.isValid(bookingId)) {
-//       return res.status(400).json({ message: "Invalid bookingId" });
-//     }
-
-//     const payment = await Payment.findOne({
-//       bookingId: new mongoose.Types.ObjectId(bookingId),
-//     });
-
-//     if (!payment) {
-//       return res.status(404).json({ message: "Payment not found" });
-//     }
-
-//     res.json(payment);
-//   } catch (error) {
-//     console.error("Fetch Payment Error:", error);
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
-
-
 import mongoose from "mongoose";
 import Payment from "../models/Payment.js";
 import Booking from "../models/Booking.js";
 
-// ----------------------
-// Create Payment
-// POST /payments/pay
 export const makePayment = async (req, res) => {
   try {
     const {
@@ -106,72 +14,79 @@ export const makePayment = async (req, res) => {
       expiry,
     } = req.body;
 
-    // 1️⃣ Validate bookingId
     if (!mongoose.Types.ObjectId.isValid(bookingId)) {
-      return res.status(400).json({ message: "Invalid bookingId" });
+      return res.status(400).json({ message: "Invalid booking ID" });
     }
 
-    // 2️⃣ Check booking exists
     const booking = await Booking.findById(bookingId);
+
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
 
-    // 3️⃣ Decide payment status
-    const paymentStatus = method === "Cash" ? "pending" : "paid"; // lowercase for consistency
+    // 🚫 DO NOT CHANGE BOOKING STATUS HERE
 
-    // 4️⃣ Create Payment Record
     const payment = await Payment.create({
-      bookingId: new mongoose.Types.ObjectId(bookingId),
+      bookingId,
       method,
       customerName: method === "Online" ? customerName : null,
       email: method === "Online" ? email : null,
       nameOnCard: method === "Online" ? nameOnCard : null,
       cardNumber: method === "Online" ? cardNumber : null,
       expiry: method === "Online" ? expiry : null,
-      paymentStatus,
-      transactionId: method === "Online" ? "TXN" + Date.now() : null,
+      paymentStatus: "paid", // payment done
+      transactionId:
+        method === "Online" ? "TXN" + Date.now() : null,
     });
 
-    // 5️⃣ Update Booking Status ✅
-    // Map Cash and Online payments to valid enum values
-    booking.status = "confirmed"; // always confirmed after payment
-    await booking.save();
-
-    // 6️⃣ Send response
     res.status(201).json({
-      message: "Payment Saved Successfully ✅",
+      success: true,
+      message: "Payment successful",
       payment,
     });
   } catch (error) {
     console.error("Payment Error:", error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
-// ----------------------
-// Get Payment by Booking ID
-// GET /payments/booking/:bookingId
+
+
+/* ===============================
+   GET PAYMENT BY BOOKING ID
+================================ */
 export const getPaymentByBookingId = async (req, res) => {
   try {
     const { bookingId } = req.params;
 
-    // Validate bookingId
     if (!mongoose.Types.ObjectId.isValid(bookingId)) {
-      return res.status(400).json({ message: "Invalid bookingId" });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid booking ID",
+      });
     }
 
-    const payment = await Payment.findOne({
-      bookingId: new mongoose.Types.ObjectId(bookingId),
-    });
+    const payment = await Payment.findOne({ bookingId });
 
     if (!payment) {
-      return res.status(404).json({ message: "Payment not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Payment not found",
+      });
     }
 
-    res.json(payment);
+    res.json({
+      success: true,
+      payment,
+    });
   } catch (error) {
     console.error("Fetch Payment Error:", error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };

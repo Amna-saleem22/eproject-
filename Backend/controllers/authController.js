@@ -64,3 +64,45 @@ export const loginUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+
+export const getAllUsers = async (req, res) => {
+  try {
+    // ================= PAGINATION =================
+    const page = parseInt(req.query.page) || 1;  // default page 1
+    const limit = parseInt(req.query.limit) || 20; // default 20 users per page
+    const skip = (page - 1) * limit;
+
+    // ================= SEARCH =================
+    const search = req.query.search
+      ? {
+          $or: [
+            { name: { $regex: req.query.search, $options: "i" } },
+            { email: { $regex: req.query.search, $options: "i" } },
+          ],
+        }
+      : {};
+
+    // ================= FETCH USERS =================
+    const users = await User.find(search)
+      .select("name email createdAt role") // only needed fields
+      .sort({ createdAt: -1 })            // newest first
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    const totalUsers = await User.countDocuments(search);
+
+    res.status(200).json({
+      users,
+      page,
+      limit,
+      totalUsers,
+      totalPages: Math.ceil(totalUsers / limit),
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ message: "Server error while fetching users" });
+  }
+};

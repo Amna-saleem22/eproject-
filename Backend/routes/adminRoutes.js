@@ -1,58 +1,30 @@
-
-
-// import express from "express";
-// import { protect, adminOnly } from "../middleware/authMiddleware.js";
-// import { getAllBookings,confirmBooking} from "../controllers/adminController.js";
-
-// const router = express.Router();
-
-// router.get("/dashboard", protect, adminOnly, (req, res) => {
-//   res.json({ message: `Welcome Admin ${req.user.name} 👑` });
-// });
-// // Get all pending bookings
-// //router.get("/bookings", protect, adminOnly, getPendingBookings);
-
-// router.get("/bookings", protect, adminOnly, getAllBookings);
-// // Confirm a booking
-// router.patch("/bookings/:id/confirm", protect, adminOnly, confirmBooking);
-// //router.patch("/bookings/:id/confirm", protect, adminOnly, confirmBooking);
-
-// export default router;
-
-
 import express from "express";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
 import {
   getAllBookings,
-//  confirmBooking,
-  //cancelBooking,
   updateBookingStatus,
+  bulkUpdateBookings
 } from "../controllers/adminController.js";
 
 const router = express.Router();
 
-// Admin Dashboard message
-router.get("/dashboard", protect, adminOnly, (req, res) => {
-  res.json({ message: `Welcome Admin ${req.user.name} 👑` });
+// Protect all routes
+router.use(protect, adminOnly);
+
+router.get("/dashboard", (req, res) => {
+  res.json({ 
+    success: true,
+    message: `Welcome Admin ${req.user.name} 👑`,
+    admin: {
+      name: req.user.name,
+      email: req.user.email,
+      role: req.user.role
+    }
+  });
 });
 
-// Get all bookings
-router.get("/bookings", protect, adminOnly, getAllBookings);
-
-// Update booking status (pending, confirmed, cancelled)
-router.put("/bookings/:id", protect, adminOnly, updateBookingStatus);
-
-
-// Get all bookings
-//router.get("/bookings", protect, adminOnly, getAllBookings);
-
-// Confirm booking
-//router.patch("/bookings/:id/confirm", protect, adminOnly, confirmBooking);
-
-// Cancel booking
-//router.patch("/bookings/:id/cancel", protect, adminOnly, cancelBooking);
-
-// Update booking status (general)
-//router.put("/bookings/:id/status", protect, adminOnly, updateBookingStatus);
+router.get("/bookings", getAllBookings);
+router.put("/bookings/:id", updateBookingStatus);
+router.post("/bookings/bulk-update", bulkUpdateBookings);
 
 export default router;

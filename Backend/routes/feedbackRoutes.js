@@ -1,18 +1,13 @@
 import express from "express";
-import Feedback from "../models/Feedback.js";
-import { protect } from "../middleware/authMiddleware.js";
+import { protect, adminOnly } from "../middleware/authMiddleware.js";
+import { submitFeedback, getAllFeedbacks } from "../controllers/feedbackController.js";
 
 const router = express.Router();
 
-router.post("/", protect, async (req, res) => {
-  const fb = await Feedback.create({
-    user: req.user._id,
-    booking: req.body.bookingId,
-    message: req.body.message,
-    rating: req.body.rating,
-  });
+// Guest submit feedback
+router.post("/", protect, submitFeedback);
 
-  res.json({ message: "Feedback Submitted ✅", fb });
-});
+// Admin fetch all feedback
+router.get("/all", protect, adminOnly, getAllFeedbacks);
 
 export default router;

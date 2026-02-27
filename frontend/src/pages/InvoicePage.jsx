@@ -1,144 +1,3 @@
-// import { useParams } from "react-router-dom";
-// import { useEffect, useState } from "react";
-// import axiosInstance from "../api/axiosInstance";
-// import jsPDF from "jspdf";
-
-// export default function InvoicePage() {
-//   const { id } = useParams();
-//   const [booking, setBooking] = useState(null);
-//   const [payment, setPayment] = useState(null);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState("");
-
-//   useEffect(() => {
-//     if (!id) {
-//       setError("Invalid booking ID");
-//       setLoading(false);
-//       return;
-//     }
-
-//     const fetchData = async () => {
-//       try {
-//         setLoading(true);
-//         setError("");
-
-//         // Backend returns booking object directly
-//         const bookingRes = await axiosInstance.get(`/bookings/${id}`);
-//         setBooking(bookingRes.data);
-
-//         // Backend returns payment object directly (res.json(payment)), not { payment }
-//         const paymentRes = await axiosInstance.get(`/payments/booking/${id}`);
-//         setPayment(paymentRes.data);
-
-//         setLoading(false);
-//       } catch (err) {
-//         console.error("Invoice fetch error:", err.response?.data || err.message);
-//         const msg = err.response?.data?.message || err.response?.status === 404
-//           ? "Payment not found. Complete payment first."
-//           : "Failed to load invoice data.";
-//         setError(msg);
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchData();
-//   }, [id]);
-
-
-//   if (loading) return <h2 style={{ color:"#fff", textAlign:"center" }}>Loading Invoice...</h2>;
-//   if (error) return <h2 style={{ color:"red", textAlign:"center" }}>{error}</h2>;
-//   if (!booking || !payment) return <h2 style={{ color:"#fff", textAlign:"center" }}>Missing data.</h2>;
-
-//   const maskedCard = payment?.cardNumber ? payment.cardNumber.replace(/\d(?=\d{4})/g, "*") : "N/A";
-
-//   const downloadPDF = () => {
-//     const doc = new jsPDF();
-//     doc.setFontSize(16);
-//     doc.text("🧾 Hotel Booking Invoice", 20, 20);
-
-//     doc.setFontSize(12);
-//     doc.text(`Booking ID: ${booking._id}`, 20, 40);
-//     doc.text(`Guest Name: ${booking.guestName}`, 20, 50);
-//     doc.text(`Phone: ${booking.phone}`, 20, 60);
-//     doc.text(`Total Guests: ${booking.totalGuests}`, 20, 70);
-//     doc.text(`Room Type: ${booking.roomType}`, 20, 80);
-//     doc.text(`Food Package: ${booking.foodPackage}`, 20, 90);
-//     doc.text(`Check-In: ${booking.checkInDate}`, 20, 100);
-//     doc.text(`Check-Out: ${booking.checkOutDate}`, 20, 110);
-//     doc.text(`Nights: ${booking.nights}`, 20, 120);
-//     doc.text(`Room Cost: Rs ${booking.roomCost}`, 20, 130);
-//     doc.text(`Food Cost: Rs ${booking.foodCost}`, 20, 140);
-//     doc.text(`Total Amount: Rs ${booking.totalAmount}`, 20, 150);
-
-//     doc.text(`Payment Method: ${payment.method}`, 20, 160);
-//     doc.text(`Payment Status: ${payment.paymentStatus}`, 20, 170);
-
-//     if (payment.method === "Online") {
-//       doc.text(`Paid By: ${payment.nameOnCard}`, 20, 180);
-//       doc.text(`Email: ${payment.email}`, 20, 190);
-//       doc.text(`Card Number: ${maskedCard}`, 20, 200);
-//       doc.text(`Expiry: ${payment.expiry}`, 20, 210);
-//     }
-
-//     doc.save(`Invoice-${booking._id}.pdf`);
-//   };
-
-//   return (
-//     <div style={{ padding:"20px", backgroundColor:"#1e1e2f", color:"#f5f5f5", minHeight:"100vh" }}>
-//       <h2 style={{ textAlign:"center", color:"#00e676", marginBottom:"20px" }}>🧾 Invoice</h2>
-//       <div style={{ maxWidth:"700px", margin:"0 auto", background:"#2c2c3e", padding:"20px", borderRadius:"10px" }}>
-//         <p><b>Booking ID:</b> {booking._id}</p>
-//         <p><b>Guest Name:</b> {booking.guestName}</p>
-//         <p><b>Phone:</b> {booking.phone}</p>
-//         <p><b>Total Guests:</b> {booking.totalGuests}</p>
-//         <p><b>Room Type:</b> {booking.roomType}</p>
-//         <p><b>Food Package:</b> {booking.foodPackage}</p>
-//         <p><b>Check-In:</b> {booking.checkInDate}</p>
-//         <p><b>Check-Out:</b> {booking.checkOutDate}</p>
-//         <p><b>Nights:</b> {booking.nights}</p>
-//         <p><b>Room Cost:</b> Rs {booking.roomCost}</p>
-//         <p><b>Food Cost:</b> Rs {booking.foodCost}</p>
-//         <h3 style={{ color:"#00e676" }}>Total Amount: Rs {booking.totalAmount}</h3>
-
-//         <h3>Payment Method: {payment.method}</h3>
-//         <p>Payment Status: {payment.paymentStatus}</p>
-//         {payment.method === "Online" && <>
-//           <p>Paid By: {payment.nameOnCard}</p>
-//           <p>Email: {payment.email}</p>
-//           <p>Card Number: {maskedCard}</p>
-//           <p>Expiry: {payment.expiry}</p>
-//         </>}
-
-//         <button onClick={downloadPDF} style={{ padding:"12px 20px", marginTop:"20px", width:"100%", background:"#00e676", color:"#1e1e2f", fontWeight:"bold", border:"none", borderRadius:"5px", cursor:"pointer" }}>Download Invoice PDF</button>
-//       </div>
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -217,12 +76,11 @@ export default function InvoicePage() {
         setError("");
 
         // Backend returns booking object directly
-        const bookingRes = await axiosInstance.get(`/bookings/${id}`);
-        setBooking(bookingRes.data);
+      const bookingRes = await axiosInstance.get(`/bookings/${id}`);
+setBooking(bookingRes.data.booking);   // 👈 FIXED
 
-        // Backend returns payment object directly (res.json(payment)), not { payment }
-        const paymentRes = await axiosInstance.get(`/payments/booking/${id}`);
-        setPayment(paymentRes.data);
+const paymentRes = await axiosInstance.get(`/payments/booking/${id}`);
+setPayment(paymentRes.data.payment);   // 👈 FIXED
 
         setLoading(false);
       } catch (err) {
@@ -728,7 +586,7 @@ export default function InvoicePage() {
                         Room Cost
                       </TableCell>
                       <TableCell sx={{ borderColor: "rgba(25,118,210,0.2)", color: "white", textAlign: "right" }}>
-                        Rs {booking.roomCost?.toLocaleString()}
+                 Rs {(booking.roomCost || 0).toLocaleString()}
                       </TableCell>
                     </TableRow>
                     <TableRow>
@@ -736,7 +594,7 @@ export default function InvoicePage() {
                         Food Cost
                       </TableCell>
                       <TableCell sx={{ borderColor: "rgba(25,118,210,0.2)", color: "white", textAlign: "right" }}>
-                        Rs {booking.foodCost?.toLocaleString()}
+                        Rs {(booking.foodCost || 0).toLocaleString()}
                       </TableCell>
                     </TableRow>
                   </TableBody>
@@ -764,7 +622,7 @@ export default function InvoicePage() {
                     Total Amount
                   </Typography>
                   <Typography variant="h3" sx={{ color: "#00e676", fontWeight: 700 }}>
-                    Rs {booking.totalAmount?.toLocaleString()}
+                 Rs {(booking.totalAmount || 0).toLocaleString()}
                   </Typography>
                   <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.3)", display: "block", mt: 1 }}>
                     All taxes included

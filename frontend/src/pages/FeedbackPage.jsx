@@ -1,51 +1,3 @@
-// import { useState } from "react";
-// import axiosInstance from "../api/axiosInstance";
-
-// export default function FeedbackPage() {
-//   const [message, setMessage] = useState("");
-
-//   const submitFeedback = async () => {
-//     await axiosInstance.post("/feedback", {
-//       message,
-//       rating: 5,
-//     });
-
-//     alert("Feedback Submitted ✅");
-//   };
-
-//   return (
-//     <div style={{ padding: 40, color: "white" }}>
-//       <h2>Give Feedback</h2>
-
-//       <textarea
-//         onChange={(e) => setMessage(e.target.value)}
-//         placeholder="Write feedback..."
-//         style={{ width: "100%", height: 100 }}
-//       />
-
-//       <button
-//         onClick={submitFeedback}
-//         style={{
-//           marginTop: 15,
-//           padding: 12,
-//           background: "#00e676",
-//           border: "none",
-//         }}
-//       >
-//         Submit
-//       </button>
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
 import { useState } from "react";
 import axiosInstance from "../api/axiosInstance";
 import {
@@ -57,6 +9,7 @@ import {
   Button,
   Alert,
   Snackbar,
+  Rating,
 } from "@mui/material";
 import { motion } from "framer-motion";
 import FeedbackIcon from "@mui/icons-material/Feedback";
@@ -65,10 +18,11 @@ import { SPACING, CONTAINER, COLORS, FORM, BUTTON } from "../theme/designSystem"
 
 export default function FeedbackPage() {
   const [message, setMessage] = useState("");
+  const [rating, setRating] = useState(5); // ✅ guest can choose rating
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
 
-  // ✅ YOUR ORIGINAL BACKEND LOGIC
+  // ===================== SUBMIT FEEDBACK =====================
   const submitFeedback = async () => {
     if (!message.trim()) {
       setError("Feedback cannot be empty ❌");
@@ -76,16 +30,24 @@ export default function FeedbackPage() {
     }
 
     try {
-      await axiosInstance.post("/feedback", {
-        message,
-        rating: 5,
-      });
+      const token = localStorage.getItem("token"); 
+      if (!token) throw new Error("You must be logged in to submit feedback");
 
-      setOpen(true);
-      setMessage("");
+      await axiosInstance.post(
+        "/feedbacks",
+        { message, rating },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setOpen(true); // success snackbar
+      setMessage(""); 
+      setRating(5);  // reset rating
       setError("");
     } catch (err) {
-      setError("Something went wrong ❌");
+      console.error(err);
+      setError(
+        err.response?.data?.message || err.message || "Something went wrong ❌"
+      );
     }
   };
 
@@ -136,11 +98,7 @@ export default function FeedbackPage() {
 
             <Typography
               variant="h4"
-              sx={{
-                color: COLORS.text,
-                fontWeight: 600,
-                mb: SPACING.inlineGap,
-              }}
+              sx={{ color: COLORS.text, fontWeight: 600, mb: SPACING.inlineGap }}
             >
               Share Your Experience
             </Typography>
@@ -158,6 +116,19 @@ export default function FeedbackPage() {
               </Alert>
             )}
 
+            {/* Rating */}
+            <Box sx={{ mb: SPACING.formSectionGap }}>
+              <Typography variant="body1" sx={{ mb: 1, color: COLORS.text }}>
+                Rate our services:
+              </Typography>
+              <Rating
+                name="guest-rating"
+                value={rating}
+                onChange={(event, newValue) => setRating(newValue)}
+              />
+            </Box>
+
+            {/* Feedback message */}
             <TextField
               fullWidth
               multiline
@@ -180,9 +151,7 @@ export default function FeedbackPage() {
                   borderRadius: BUTTON.borderRadius,
                   background: `linear-gradient(135deg, ${COLORS.primaryLight} 30%, ${COLORS.primary} 90%)`,
                   boxShadow: `0 8px 20px ${COLORS.border}`,
-                  "&:hover": {
-                    boxShadow: `0 12px 30px ${COLORS.borderStrong}`,
-                  },
+                  "&:hover": { boxShadow: `0 12px 30px ${COLORS.borderStrong}` },
                 }}
               >
                 Submit Feedback
@@ -200,10 +169,7 @@ export default function FeedbackPage() {
       >
         <Alert
           severity="success"
-          sx={{
-            backgroundColor: COLORS.primaryLight,
-            color: COLORS.text,
-          }}
+          sx={{ backgroundColor: COLORS.primaryLight, color: COLORS.text }}
         >
           Feedback Submitted Successfully ✅
         </Alert>
