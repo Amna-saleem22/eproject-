@@ -69,8 +69,9 @@ const Navbar = () => {
    const adminItems = [
     { text: "Admin Panel", path: "/admin", icon: <AdminPanelSettingsIcon /> },
     { text: "Create Staff", path: "/admincreatestaff", icon: <BadgeIcon /> }, 
-    { text: "Staff List", path: "/adminstafflist", icon: <BadgeIcon /> },
+   // { text: "Staff List", path: "/adminstafflist", icon: <BadgeIcon /> },
     { text: "Admin Rooms", path: "/adminrooms", icon: <HotelIcon /> },
+    { text: "All Booking", path: "/adminstat", icon: <DiamondIcon /> },
     { text: "Admin Feedback", path: "/adminfeedback", icon: <RateReviewIcon /> },
      { text: 'Followers', path: '/adminusers', icon: <AdminPanelSettingsIcon /> },
      { text: "Logout", action: handleLogout, icon: <LoginIcon /> },

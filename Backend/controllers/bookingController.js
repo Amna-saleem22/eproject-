@@ -42,8 +42,10 @@ export const getBookingById = async (req, res) => {
 // controllers/bookingController.js
 export const getMyBookings = async (req, res) => {
   try {
-    const userId = req.user._id; // middleware se req.user mil raha hai
-    const bookings = await Booking.find({ user: userId }).sort({ createdAt: -1 });
+    const userId = req.user._id;
+    const bookings = await Booking.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .populate("assignedRoom"); // ✅ populate assignedRoom
     res.status(200).json({ bookings });
   } catch (err) {
     res.status(500).json({ message: "Error fetching bookings" });
@@ -116,5 +118,50 @@ export const updateBooking = async (req, res) => {
       success: false,
       message: error.message,
     });
+  }
+};
+
+export const confirmBooking = async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    // Step 1: Find available room of requested type
+    let room = await Room.findOne({
+      type: booking.roomType,
+      status: "available",
+    });
+
+    let upgrade = false;
+    let extraService = "";
+
+    // Step 2: If not found → find higher type
+    if (!room) {
+      room = await Room.findOne({ status: "available" });
+
+      if (room) {
+        upgrade = true;
+        extraService = "Free Breakfast Included 🍽️";
+      }
+    }
+
+    if (!room) {
+      return res.status(400).json({ message: "No rooms available" });
+    }
+
+    // Step 3: Assign room
+    booking.status = "confirmed";
+    booking.assignedRoom = room._id;
+    booking.upgrade = upgrade;
+    booking.extraService = extraService;
+
+    await booking.save();
+
+    res.json({ message: "Room Assigned Successfully", booking });
+  } catch (error) {
+    res.status(500).json({ message: "Error confirming booking" });
   }
 };

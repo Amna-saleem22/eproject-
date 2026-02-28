@@ -1,342 +1,173 @@
-// import Booking from "../models/Booking.js";
-
-// // Get all bookings (Admin)
-// export const getAllBookings = async (req, res) => {
-//   try {
-//     const bookings = await Booking.find()
-//       .populate("user", "name email")
-//       .sort({ createdAt: -1 });
-
-//     res.status(200).json({
-//       success: true,
-//       count: bookings.length,
-//       bookings
-//     });
-//   } catch (error) {
-//     res.status(500).json({ 
-//       success: false, 
-//       message: "Error fetching bookings",
-//       error: error.message 
-//     });
-//   }
-// };
-
-// // Update booking status (Admin only - limited to confirmed/cancelled)
-// export const updateBookingStatus = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const { status } = req.body;
-
-//     // Only allow admin to set confirmed or cancelled
-//     if (!["confirmed", "cancelled"].includes(status)) {
-//       return res.status(400).json({ 
-//         success: false, 
-//         message: "Invalid status. Only 'confirmed' or 'cancelled' allowed ❌" 
-//       });
-//     }
-
-//     const booking = await Booking.findById(id);
-
-//     if (!booking) {
-//       return res.status(404).json({ 
-//         success: false, 
-//         message: "Booking not found ❌" 
-//       });
-//     }
-
-//     // Prevent changing already cancelled or confirmed bookings
-//     if (booking.status !== "pending") {
-//       return res.status(400).json({ 
-//         success: false, 
-//         message: `Cannot update booking with status: ${booking.status}. Only pending bookings can be modified. ❌` 
-//       });
-//     }
-
-//     // Clear extra services if cancelling
-//     if (status === "cancelled") {
-//       booking.extraServices = [];
-//     }
-
-//     booking.status = status;
-//     await booking.save();
-
-//     // Populate user data for response
-//     await booking.populate("user", "name email");
-
-//     // Emit socket event for real-time updates (if using Socket.io)
-//     const io = req.app.get('io');
-//     if (io) {
-//       // Emit to admin room
-//       io.to('admin-room').emit('bookingUpdated', booking);
-//       // Emit to specific user
-//       io.to(`user-${booking.user._id}`).emit('bookingUpdated', booking);
-//     }
-
-//     res.json({
-//       success: true,
-//       message: status === "confirmed" ? "Booking confirmed ✅" : "Booking cancelled ❌",
-//       booking,
-//     });
-
-//   } catch (error) {
-//     res.status(500).json({ 
-//       success: false, 
-//       message: error.message 
-//     });
-//   }
-// };
-
-// // Bulk update (optional - for future use)
-// export const bulkUpdateBookings = async (req, res) => {
-//   try {
-//     const { bookingIds, status } = req.body;
-
-//     if (!["confirmed", "cancelled"].includes(status)) {
-//       return res.status(400).json({ 
-//         success: false, 
-//         message: "Invalid status ❌" 
-//       });
-//     }
-
-//     const result = await Booking.updateMany(
-//       { 
-//         _id: { $in: bookingIds },
-//         status: "pending" // Only update pending bookings
-//       },
-//       { status }
-//     );
-
-//     res.json({
-//       success: true,
-//       message: `Updated ${result.modifiedCount} bookings ✅`,
-//       modifiedCount: result.modifiedCount
-//     });
-
-//   } catch (error) {
-//     res.status(500).json({ 
-//       success: false, 
-//       message: error.message 
-//     });
-//   }
-// };
-
-
-
-
-// import Booking from "../models/Booking.js";
-
-// // Get all bookings (Admin)
-// export const getAllBookings = async (req, res) => {
-//   try {
-//     const bookings = await Booking.find()
-//       .populate("user", "name email")
-//       .sort({ createdAt: -1 });
-
-//     res.status(200).json({
-//       success: true,
-//       count: bookings.length,
-//       bookings
-//     });
-//   } catch (error) {
-//     res.status(500).json({ 
-//       success: false, 
-//       message: error.message 
-//     });
-//   }
-// };
-
-// // Update booking status (Admin only - limited to confirmed/cancelled)
-// export const updateBookingStatus = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const { status } = req.body;
-
-//     // Only allow admin to set confirmed or cancelled
-//     if (!["confirmed", "cancelled"].includes(status)) {
-//       return res.status(400).json({ 
-//         success: false, 
-//         message: "Invalid status. Only 'confirmed' or 'cancelled' allowed ❌" 
-//       });
-//     }
-
-//     const booking = await Booking.findById(id);
-
-//     if (!booking) {
-//       return res.status(404).json({ 
-//         success: false, 
-//         message: "Booking not found ❌" 
-//       });
-//     }
-
-//     // Prevent changing already cancelled or confirmed bookings
-//     if (booking.status !== "pending") {
-//       return res.status(400).json({ 
-//         success: false, 
-//         message: `Cannot update booking with status: ${booking.status}. Only pending bookings can be modified. ❌` 
-//       });
-//     }
-
-//     // Clear extra services if cancelling
-//     if (status === "cancelled") {
-//       booking.extraServices = [];
-//     }
-
-//     booking.status = status;
-//     await booking.save();
-
-//     // Populate user data for response
-//     await booking.populate("user", "name email");
-
-//     // ✅ Emit socket events for real-time updates
-//     const io = req.app.get('io');
-//     if (io) {
-//       // Emit to admin room (all admins)
-//       io.to('admin-room').emit('bookingUpdated', {
-//         type: 'STATUS_CHANGE',
-//         booking,
-//         message: `Booking ${status} by admin`
-//       });
-
-//       // Emit to specific user
-//       io.to(`user-${booking.user._id}`).emit('bookingUpdated', {
-//         type: 'STATUS_CHANGE',
-//         booking,
-//         message: `Your booking has been ${status}`
-//       });
-
-//       console.log(`📡 Socket event emitted: Booking ${status} for user ${booking.user._id}`);
-//     }
-
-//     res.json({
-//       success: true,
-//       message: status === "confirmed" ? "Booking confirmed ✅" : "Booking cancelled ❌",
-//       booking,
-//     });
-
-//   } catch (error) {
-//     res.status(500).json({ 
-//       success: false, 
-//       message: error.message 
-//     });
-//   }
-// };
-
-
-
-
-
-
-
-
-
 import Booking from "../models/Booking.js";
-// // Bulk update bookings (optional)
-export const bulkUpdateBookings = async (req, res) => {
+import Room from "../models/Room.js";
+
+
+
+
+
+
+
+// GET /api/admin/stats
+export const getAdminStats = async (req, res) => {
   try {
-    const { bookingIds, status } = req.body;
+    // Total rooms
+    const totalRooms = await Room.countDocuments();
+    const occupiedRooms = await Room.countDocuments({ status: "occupied" });
+    const availableRooms = await Room.countDocuments({ status: "available" });
 
-    if (!["confirmed", "cancelled"].includes(status)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Invalid status ❌" 
-      });
-    }
+    // Total bookings & guests
+    const allBookings = await Booking.find();
+    const totalBookings = allBookings.length;
+    const totalGuests = allBookings.reduce((sum, b) => sum + (b.totalGuests || 0), 0);
 
-    const result = await Booking.updateMany(
-      { 
-        _id: { $in: bookingIds },
-        status: "pending" // Only update pending bookings
+    // Total revenue
+    const totalRevenue = allBookings
+      .filter(b => ["confirmed", "checked-out"].includes(b.status))
+      .reduce((sum, b) => sum + (b.totalAmount || 0), 0);
+
+    // Monthly Revenue (last 6 months)
+    const monthlyRevenueAgg = await Booking.aggregate([
+      { $match: { status: { $in: ["confirmed", "checked-out"] } } },
+      {
+        $group: {
+          _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+          revenue: { $sum: "$totalAmount" },
+        },
       },
-      { status }
-    );
+      { $sort: { "_id.year": -1, "_id.month": -1 } },
+      { $limit: 6 },
+    ]);
 
-    // Get updated bookings for socket events
-    const updatedBookings = await Booking.find({ 
-      _id: { $in: bookingIds } 
-    }).populate("user", "name email");
-
-    // ✅ Emit socket events for each updated booking
-    const io = req.app.get('io');
-    if (io) {
-      updatedBookings.forEach(booking => {
-        io.to(`user-${booking.user._id}`).emit('bookingUpdated', {
-          type: 'STATUS_CHANGE',
-          booking,
-          message: `Your booking has been ${status}`
-        });
-      });
-      
-      io.to('admin-room').emit('bulkBookingsUpdated', {
-        count: result.modifiedCount,
-        status,
-        message: `${result.modifiedCount} bookings ${status}`
-      });
-    }
+    // Format for frontend
+    const monthlyRevenue = monthlyRevenueAgg
+      .map(item => ({
+        month: `${item._id.month}-${item._id.year}`, // e.g., 3-2026
+        revenue: item.revenue,
+      }))
+      .reverse(); // oldest month first
 
     res.json({
       success: true,
-      message: `Updated ${result.modifiedCount} bookings ✅`,
-      modifiedCount: result.modifiedCount
+      stats: {
+        totalRooms,
+        occupiedRooms,
+        availableRooms,
+        totalBookings,
+        totalGuests,
+        totalRevenue,
+        monthlyRevenue,
+      },
     });
-
-  } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      message: error.message 
-    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
 
-// Get all bookings
+
+// ✅ Get all bookings
 export const getAllBookings = async (req, res) => {
   try {
     const bookings = await Booking.find()
       .populate("user", "name email")
+      .populate("assignedRoom")
       .sort({ createdAt: -1 });
-
-    res.status(200).json({
-      success: true,
-      count: bookings.length,
-      bookings
-    });
-  } catch (error) {
-    console.error("Error fetching bookings:", error.message);
-    res.status(500).json({ success: false, message: error.message });
+    res.status(200).json({ bookings });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
-// Update booking status
-export const updateBookingStatus = async (req, res) => {
+// ✅ Confirm booking + auto-assign room
+export const confirmBooking = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { status } = req.body;
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
 
-    if (!["confirmed", "cancelled"].includes(status)) {
-      return res.status(400).json({ success: false, message: "Invalid status" });
+    // Step 1: Find room of requested type
+    let room = await Room.findOne({ type: booking.roomType, status: "available" });
+    let upgrade = false, extraService = "";
+
+    // Step 2: Upgrade if no room of same type
+    if (!room) {
+      room = await Room.findOne({ status: "available" });
+      if (room) {
+        upgrade = true;
+        extraService = "Free Breakfast Included 🍽️";
+      }
     }
 
-    const booking = await Booking.findById(id).populate("user", "name email");
+    if (!room) return res.status(400).json({ message: "No rooms available" });
 
-    if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
-    if (booking.status !== "pending") {
-      return res.status(400).json({ success: false, message: "Only pending bookings can be updated" });
-    }
+    // Step 3: Assign room & mark occupied
+    booking.status = "confirmed";
+    booking.assignedRoom = room._id;
+    booking.upgrade = upgrade;
+    booking.extraService = extraService;
+    room.status = "occupied";
 
-    booking.status = status;
-    if (status === "cancelled") booking.extraServices = [];
+    await room.save();
     await booking.save();
 
-    // Emit socket updates
-    const io = req.app.get("io");
-    if (io) {
-      io.to("admin-room").emit("bookingUpdated", { booking, message: `Booking ${status}` });
-      io.to(`user-${booking.user._id}`).emit("bookingUpdated", { booking, message: `Your booking is ${status}` });
-    }
+    res.json({ message: "Room assigned successfully", booking });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error confirming booking" });
+  }
+};
 
-    res.json({ success: true, message: `Booking ${status} successfully`, booking });
-  } catch (error) {
-    console.error("Error updating booking:", error.message);
-    res.status(500).json({ success: false, message: error.message });
+// ✅ Check-In
+export const checkInBooking = async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id).populate("assignedRoom");
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+    booking.status = "checked-in";
+    booking.assignedRoom.status = "occupied";
+    await booking.assignedRoom.save();
+    await booking.save();
+    res.json({ message: "Guest Checked-In", booking });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// ✅ Check-Out
+export const checkOutBooking = async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id).populate("assignedRoom");
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+    booking.status = "checked-out";
+    booking.assignedRoom.status = "available";
+    await booking.assignedRoom.save();
+    await booking.save();
+    res.json({ message: "Guest Checked-Out", booking });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// ✅ Cancel / general update
+export const updateBookingStatus = async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+    const { status } = req.body;
+    if (!["confirmed", "cancelled"].includes(status))
+      return res.status(400).json({ message: "Invalid status" });
+
+    booking.status = status;
+    if (status === "cancelled" && booking.assignedRoom) {
+      const room = await Room.findById(booking.assignedRoom);
+      room.status = "available";
+      await room.save();
+      booking.assignedRoom = null;
+    }
+    await booking.save();
+
+    res.json({ message: `Booking ${status}`, booking });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };

@@ -1,204 +1,224 @@
+// import React, { useEffect, useState } from "react";
+// import axiosInstance from "../api/axiosInstance";
+// import { Box, Card, Typography, Grid } from "@mui/material";
+
+// export default function AdminDashboardStats() {
+//   const [stats, setStats] = useState(null);
+
+//   const fetchStats = async () => {
+//     try {
+//       const token = localStorage.getItem("token");
+//       const res = await axiosInstance.get("/admin/stats", {
+//         headers: { Authorization: `Bearer ${token}` }
+//       });
+//       setStats(res.data.stats);
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchStats();
+//   }, []);
+
+//   if (!stats) return <Typography>Loading stats...</Typography>;
+
+//   return (
+//     <Grid container spacing={3}>
+//       <Grid item xs={12} md={4}>
+//         <Card sx={{ p: 2 }}>
+//           <Typography variant="h6">Total Rooms</Typography>
+//           <Typography variant="h4">{stats.totalRooms}</Typography>
+//         </Card>
+//       </Grid>
+//       <Grid item xs={12} md={4}>
+//         <Card sx={{ p: 2 }}>
+//           <Typography variant="h6">Occupied Rooms</Typography>
+//           <Typography variant="h4">{stats.occupiedRooms}</Typography>
+//         </Card>
+//       </Grid>
+//       <Grid item xs={12} md={4}>
+//         <Card sx={{ p: 2 }}>
+//           <Typography variant="h6">Available Rooms</Typography>
+//           <Typography variant="h4">{stats.availableRooms}</Typography>
+//         </Card>
+//       </Grid>
+//       <Grid item xs={12} md={4}>
+//         <Card sx={{ p: 2 }}>
+//           <Typography variant="h6">Total Bookings</Typography>
+//           <Typography variant="h4">{stats.totalBookings}</Typography>
+//         </Card>
+//       </Grid>
+//       <Grid item xs={12} md={4}>
+//         <Card sx={{ p: 2 }}>
+//           <Typography variant="h6">Total Guests</Typography>
+//           <Typography variant="h4">{stats.totalGuests}</Typography>
+//         </Card>
+//       </Grid>
+//       <Grid item xs={12} md={4}>
+//         <Card sx={{ p: 2 }}>
+//           <Typography variant="h6">Total Revenue</Typography>
+//           <Typography variant="h4">₹{stats.totalRevenue.toLocaleString()}</Typography>
+//         </Card>
+//       </Grid>
+//     </Grid>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
-import {
-  Container,
-  Typography,
-  Card,
-  CardContent,
-  Button,
-  Grid,
-  Chip,
-  Alert,
-  Snackbar,
-  CircularProgress,
-  Box,
-} from "@mui/material";
-import { io } from "socket.io-client";
+import { Box, Card, Typography, Grid } from "@mui/material";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 
-export default function AdminDashboard() {
-  const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success"
-  });
-  const [updatingId, setUpdatingId] = useState(null);
+export default function AdminDashboardStats() {
+  const [stats, setStats] = useState(null);
 
-  // Socket connection for real-time updates
-  useEffect(() => {
-    const socket = io(process.env.REACT_APP_API_URL || "http://localhost:5000");
-    
-    socket.on("bookingUpdated", (updatedBooking) => {
-      setBookings(prevBookings =>
-        prevBookings.map(booking =>
-          booking._id === updatedBooking._id ? updatedBooking : booking
-        )
-      );
-    });
-
-    return () => socket.disconnect();
-  }, []);
-
-  const fetchBookings = async () => {
+  const fetchStats = async () => {
     try {
-      setLoading(true);
-      const res = await axiosInstance.get("/admin/bookings");
-      setBookings(res.data.bookings || res.data); // Handle both response formats
-      setLoading(false);
+      const token = localStorage.getItem("token");
+      const res = await axiosInstance.get("/admin/stats", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setStats(res.data.stats);
     } catch (err) {
       console.error(err);
-      setSnackbar({
-        open: true,
-        message: err.response?.data?.message || "Error fetching bookings",
-        severity: "error"
-      });
-      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchBookings();
+    fetchStats();
   }, []);
 
-  const updateStatus = async (id, status) => {
-    try {
-      setUpdatingId(id);
-      const res = await axiosInstance.put(`/admin/bookings/${id}`, { status });
-      
-      // Optimistic update
-      setBookings(prevBookings =>
-        prevBookings.map(booking =>
-          booking._id === id ? { ...booking, status } : booking
-        )
-      );
-
-      setSnackbar({
-        open: true,
-        message: res.data.message,
-        severity: "success"
-      });
-    } catch (err) {
-      console.error(err);
-      setSnackbar({
-        open: true,
-        message: err.response?.data?.message || "Error updating booking",
-        severity: "error"
-      });
-      // Revert optimistic update on error
-      fetchBookings();
-    } finally {
-      setUpdatingId(null);
-    }
-  };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
-
-  if (loading) {
-    return (
-      <Container sx={{ mt: 5, textAlign: "center" }}>
-        <CircularProgress />
-      </Container>
-    );
-  }
+  if (!stats) return <Typography>Loading stats...</Typography>;
 
   return (
-    <Container sx={{ mt: 5 }}>
-      <Typography variant="h4" gutterBottom>
-        Admin Booking Panel
-      </Typography>
-
-      {bookings.length === 0 ? (
-        <Alert severity="info">No bookings found</Alert>
-      ) : (
-        <Grid container spacing={3}>
-          {bookings.map((booking) => (
-            <Grid item xs={12} md={6} key={booking._id}>
-              <Card sx={{ 
-                position: 'relative',
-                opacity: updatingId === booking._id ? 0.7 : 1,
-                transition: 'opacity 0.3s'
-              }}>
-                <CardContent>
-                  <Typography variant="h6">
-                    Guest: {booking.guestName}
-                  </Typography>
-                  <Typography color="textSecondary">
-                    Email: {booking.user?.email}
-                  </Typography>
-                  <Typography>
-                    Check-In: {new Date(booking.checkInDate).toLocaleDateString()}
-                  </Typography>
-                  <Typography>
-                    Check-Out: {new Date(booking.checkOutDate).toLocaleDateString()}
-                  </Typography>
-                  <Typography>
-                    Rooms: {booking.roomsCount} | Guests: {booking.totalGuests}
-                  </Typography>
-                  <Typography variant="h6" sx={{ mt: 1 }}>
-                    Total: ₹{booking.totalAmount?.toLocaleString()}
-                  </Typography>
-
-                  <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Chip
-                      label={booking.status.toUpperCase()}
-                      color={
-                        booking.status === "confirmed"
-                          ? "success"
-                          : booking.status === "cancelled"
-                          ? "error"
-                          : "warning"
-                      }
-                    />
-                    {updatingId === booking._id && (
-                      <CircularProgress size={20} />
-                    )}
-                  </Box>
-
-                  {booking.status === "pending" && (
-                    <Box sx={{ mt: 2 }}>
-                      <Button
-                        variant="contained"
-                        sx={{ 
-                          mr: 2,
-                          backgroundColor: "#00e676", 
-                          color: "#000",
-                          '&:hover': { backgroundColor: "#00c853" }
-                        }}
-                        onClick={() => updateStatus(booking._id, "confirmed")}
-                        disabled={updatingId === booking._id}
-                      >
-                        Confirm
-                      </Button>
-                      <Button
-                        variant="contained"
-                        color="error"
-                        onClick={() => updateStatus(booking._id, "cancelled")}
-                        disabled={updatingId === booking._id}
-                      >
-                        Cancel
-                      </Button>
-                    </Box>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
+    <Box sx={{ p: 3 }}>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={4}>
+          <Card sx={{ p: 2 }}>
+            <Typography>Total Rooms</Typography>
+            <Typography variant="h4">{stats.totalRooms}</Typography>
+          </Card>
         </Grid>
-      )}
+        <Grid item xs={12} md={4}>
+          <Card sx={{ p: 2 }}>
+            <Typography>Occupied Rooms</Typography>
+            <Typography variant="h4">{stats.occupiedRooms}</Typography>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card sx={{ p: 2 }}>
+            <Typography>Available Rooms</Typography>
+            <Typography variant="h4">{stats.availableRooms}</Typography>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card sx={{ p: 2 }}>
+            <Typography>Total Bookings</Typography>
+            <Typography variant="h4">{stats.totalBookings}</Typography>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card sx={{ p: 2 }}>
+            <Typography>Total Guests</Typography>
+            <Typography variant="h4">{stats.totalGuests}</Typography>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card sx={{ p: 2 }}>
+            <Typography>Total Revenue</Typography>
+            <Typography variant="h4">₹{stats.totalRevenue.toLocaleString()}</Typography>
+          </Card>
+        </Grid>
+      </Grid>
 
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Container>
+      {/* Monthly Revenue Chart */}
+      <Box sx={{ mt: 5 }}>
+        <Typography variant="h5" gutterBottom>
+          Monthly Revenue (Last 6 Months)
+        </Typography>
+        <Card sx={{ p: 2, height: 300 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={stats.monthlyRevenue}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip formatter={value => `₹${value.toLocaleString()}`} />
+              <Line type="monotone" dataKey="revenue" stroke="#1976d2" strokeWidth={3} />
+            </LineChart>
+          </ResponsiveContainer>
+        </Card>
+      </Box>
+    </Box>
   );
 }

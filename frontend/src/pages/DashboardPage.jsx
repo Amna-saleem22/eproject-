@@ -27,50 +27,59 @@ export default function UserDashboard() {
   const [cancellingId, setCancellingId] = useState(null);
 
   // ===================== SOCKET CONNECTION =====================
- useEffect(() => {
-  const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("userId");
-  if (!token || !userId) return;
-
-  const socket = io(process.env.REACT_APP_API_URL || "http://localhost:5000", {
-    auth: { token } // optional, depending on backend
-  });
-
-  socket.emit("join-user-room", userId);
-
-  socket.on("bookingUpdated", (updatedBooking) => {
-    setBookings((prev) =>
-      prev.map((b) => (b._id === updatedBooking._id ? updatedBooking : b))
-    );
-    if (updatedBooking.status === "confirmed") showSnackbar("Your booking is confirmed! ✅", "success");
-    if (updatedBooking.status === "cancelled") showSnackbar("Your booking has been cancelled ❌", "info");
-  });
-
-  return () => socket.disconnect();
-}, []);
-
-  // ===================== FETCH BOOKINGS =====================
- const fetchBookings = async () => {
-  try {
-    setLoading(true);
+  useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) throw new Error("User not authenticated");
+    const userId = localStorage.getItem("userId");
+    if (!token || !userId) return;
 
-    const res = await axiosInstance.get("/bookings/my", {
-      headers: { Authorization: `Bearer ${token}` },
+    const socket = io(process.env.REACT_APP_API_URL || "http://localhost:5000", {
+      auth: { token },
     });
 
-    setBookings(res.data.bookings || res.data || []);
-  } catch (err) {
-    console.error(err);
-    showSnackbar(
-      err.response?.data?.message || err.message || "Error fetching bookings",
-      "error"
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+    // Join user's personal room for updates
+    socket.emit("join-user-room", userId);
+
+    socket.on("bookingUpdated", (updatedBooking) => {
+      setBookings((prev) =>
+        prev.map((b) => (b._id === updatedBooking._id ? updatedBooking : b))
+      );
+
+      // Show snackbar based on booking status
+      if (updatedBooking.status === "confirmed")
+        showSnackbar("Your booking is confirmed! ✅", "success");
+      else if (updatedBooking.status === "cancelled")
+        showSnackbar("Your booking has been cancelled ❌", "info");
+      else if (updatedBooking.status === "checked-in")
+        showSnackbar("You are checked-in 🏨", "info");
+      else if (updatedBooking.status === "checked-out")
+        showSnackbar("Stay completed ✅", "success");
+    });
+
+    return () => socket.disconnect();
+  }, []);
+
+  // ===================== FETCH BOOKINGS =====================
+  const fetchBookings = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("User not authenticated");
+
+      const res = await axiosInstance.get("/bookings/my", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setBookings(res.data.bookings || res.data || []);
+    } catch (err) {
+      console.error(err);
+      showSnackbar(
+        err.response?.data?.message || err.message || "Error fetching bookings",
+        "error"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchBookings();
@@ -88,9 +97,8 @@ export default function UserDashboard() {
         { headers: token ? { Authorization: `Bearer ${token}` } : {} }
       );
 
-      // Optimistic update
       setBookings((prev) =>
-        prev.map((b) => (b._id === id ? { ...b, status: "cancelled" } : b))
+        prev.map((b) => (b._id === id ? { ...b, status: "cancelled", assignedRoom: null } : b))
       );
 
       showSnackbar("Booking cancelled successfully ✅", "success");
@@ -100,7 +108,7 @@ export default function UserDashboard() {
         err.response?.data?.message || "Error cancelling booking",
         "error"
       );
-      fetchBookings(); // revert on error
+      fetchBookings();
     } finally {
       setCancellingId(null);
     }
@@ -110,10 +118,7 @@ export default function UserDashboard() {
   const showSnackbar = (message, severity) => {
     setSnackbar({ open: true, message, severity });
   };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
+  const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
 
   // ===================== STATUS COLOR =====================
   const getStatusColor = (status = "pending") => {
@@ -122,12 +127,15 @@ export default function UserDashboard() {
         return "success";
       case "cancelled":
         return "error";
+      case "checked-in":
+        return "info";
+      case "checked-out":
+        return "primary";
       default:
         return "warning";
     }
   };
 
-  // ===================== LOADING =====================
   if (loading) {
     return (
       <Container sx={{ mt: 5, textAlign: "center" }}>
@@ -158,11 +166,9 @@ export default function UserDashboard() {
               >
                 <CardContent>
                   <Typography variant="h6">
-                    Booking ID: {booking._id ? booking._id.slice(-6).toUpperCase() : "N/A"}
+                    Booking ID: {booking._id?.slice(-6).toUpperCase() || "N/A"}
                   </Typography>
-
                   <Divider sx={{ my: 1 }} />
-
                   <Typography>
                     📅 Check-In:{" "}
                     {booking.checkInDate
@@ -177,9 +183,9 @@ export default function UserDashboard() {
                   </Typography>
                   <Typography>🏨 Room Type: {booking.roomType || "N/A"}</Typography>
                   <Typography>👥 Guests: {booking.totalGuests || 0}</Typography>
-
-                  {booking.foodPackage && <Typography>🍽️ Food Package: {booking.foodPackage}</Typography>}
-
+                  {booking.foodPackage && (
+                    <Typography>🍽️ Food Package: {booking.foodPackage}</Typography>
+                  )}
                   <Typography variant="h6" sx={{ mt: 2 }}>
                     Total: ₹{(booking.totalAmount || 0).toLocaleString()}
                   </Typography>
@@ -204,9 +210,37 @@ export default function UserDashboard() {
                     </Button>
                   )}
 
-                  {booking.status === "confirmed" && (
+                  {/* ===================== ASSIGNED ROOM ===================== */}
+                  <Typography sx={{ mt: 2 }}>
+                    Assigned Room:{" "}
+                    {booking.assignedRoom?.roomNumber
+                      ? `Room #${booking.assignedRoom.roomNumber}`
+                      : booking.status === "confirmed"
+                      ? "Assigning..."
+                      : "Waiting for confirmation"}
+                  </Typography>
+
+                  {booking.upgrade && (
+                    <Alert severity="success" sx={{ mt: 1 }}>
+                      🎉 You have been upgraded!
+                    </Alert>
+                  )}
+
+                  {booking.extraService && (
+                    <Typography sx={{ mt: 1 }}>
+                      Extra Service: {booking.extraService}
+                    </Typography>
+                  )}
+
+                  {booking.status === "checked-in" && (
+                    <Alert severity="info" sx={{ mt: 2 }}>
+                      You are currently checked-in 🏨
+                    </Alert>
+                  )}
+
+                  {booking.status === "checked-out" && (
                     <Alert severity="success" sx={{ mt: 2 }}>
-                      Your booking is confirmed! ✅
+                      Stay completed successfully ✅
                     </Alert>
                   )}
 

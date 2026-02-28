@@ -1,83 +1,131 @@
-// AdminRooms.jsx
 import { useEffect, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
-import {
-  Container, Typography, Grid, Card, CardContent,
-  TextField, Button, Chip, Box
-} from "@mui/material";
 
 export default function AdminRooms() {
   const [rooms, setRooms] = useState([]);
-  const [form, setForm] = useState({
-    roomType: "",
-    totalRooms: 1,
-    pricePerNight: 0,
+  const [formData, setFormData] = useState({
+    roomNumber: "",
+    floor: "",
+    type: "Standard",
+    price: "",
     description: "",
-    amenities: "",
   });
 
   const fetchRooms = async () => {
     try {
-      const res = await axiosInstance.get("/rooms");
-      setRooms(res.data.rooms || []);
-    } catch (err) {
-      console.error(err);
-      alert(err.response?.data?.message || "Failed to fetch rooms");
+      const { data } = await axiosInstance.get("/rooms");
+      setRooms(data);
+    } catch (error) {
+      console.error(error.response?.data || error.message);
     }
   };
 
-  useEffect(() => { fetchRooms(); }, []);
+  useEffect(() => {
+    fetchRooms();
+  }, []);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const payload = {
-        ...form,
-        amenities: form.amenities.split(",").map(a => a.trim())
-      };
-      await axiosInstance.post("/rooms", payload);
-      alert("Room created successfully ✅");
-      setForm({ roomType: "", totalRooms: 1, pricePerNight: 0, description: "", amenities: "" });
+      await axiosInstance.post("/rooms", formData);
+      alert("Room Added Successfully ✅");
+      setFormData({
+        roomNumber: "",
+        floor: "",
+        type: "Standard",
+        price: "",
+        description: "",
+      });
       fetchRooms();
-    } catch (err) {
-      console.error(err);
-      alert(err.response?.data?.message || "Failed to create room");
+    } catch (error) {
+      alert(error.response?.data?.message || "Error creating room");
+    }
+  };
+
+  const changeStatus = async (id, status) => {
+    try {
+      await axiosInstance.put(`/rooms/${id}/status`, { status });
+      fetchRooms();
+    } catch (error) {
+      console.error(error.response?.data || error.message);
     }
   };
 
   return (
-    <Container sx={{ mt: 5 }}>
-      <Typography variant="h4" gutterBottom>Hotel Rooms</Typography>
+    <div className="container">
+      <h2>Hotel Rooms Management</h2>
 
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h6">Add New Room</Typography>
-        <TextField label="Room Type" name="roomType" value={form.roomType} onChange={handleChange} sx={{ mr: 2, mb: 1 }} />
-        <TextField label="Total Rooms" type="number" name="totalRooms" value={form.totalRooms} onChange={handleChange} sx={{ mr: 2, mb: 1 }} />
-        <TextField label="Price/Night" type="number" name="pricePerNight" value={form.pricePerNight} onChange={handleChange} sx={{ mr: 2, mb: 1 }} />
-        <TextField label="Description" name="description" value={form.description} onChange={handleChange} sx={{ mr: 2, mb: 1 }} />
-        <TextField label="Amenities (comma separated)" name="amenities" value={form.amenities} onChange={handleChange} sx={{ mr: 2, mb: 1 }} />
-        <Button variant="contained" onClick={handleSubmit}>Add Room</Button>
-      </Box>
+      {/* Add Room Form */}
+      <form onSubmit={handleSubmit} className="room-form">
+        <input
+          type="number"
+          name="roomNumber"
+          placeholder="Room Number"
+          value={formData.roomNumber}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="number"
+          name="floor"
+          placeholder="Floor"
+          value={formData.floor}
+          onChange={handleChange}
+          required
+        />
+        <select name="type" value={formData.type} onChange={handleChange}>
+          <option value="Standard">Standard</option>
+          <option value="Deluxe">Deluxe</option>
+          <option value="Suite">Suite</option>
+        </select>
+        <input
+          type="number"
+          name="price"
+          placeholder="Price"
+          value={formData.price}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="text"
+          name="description"
+          placeholder="Description"
+          value={formData.description}
+          onChange={handleChange}
+        />
+        <button type="submit">Add Room</button>
+      </form>
 
-      <Typography variant="h5" gutterBottom>All Rooms</Typography>
-      <Grid container spacing={3}>
-        {rooms.map(r => (
-          <Grid item xs={12} md={6} key={r._id}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6">{r.roomType}</Typography>
-                <Typography>Total Rooms: {r.totalRooms}</Typography>
-                <Typography>Price/Night: ₹{r.pricePerNight}</Typography>
-                <Typography>Amenities: {r.amenities.join(", ")}</Typography>
-                <Chip label={r.status.toUpperCase()} color={r.status === "available" ? "success" : "warning"} sx={{ mt: 1 }} />
-              </CardContent>
-            </Card>
-          </Grid>
+      {/* Rooms List */}
+      <div className="grid">
+        {rooms.map((room) => (
+          <div key={room._id} className="card">
+            <h3>Room {room.roomNumber}</h3>
+            <p>Type: {room.type}</p>
+            <p>Floor: {room.floor}</p>
+            <p>Price: Rs {room.price}</p>
+            <p>Status: <strong>{room.status}</strong></p>
+
+            {/* Only allow Maintenance <-> Available */}
+            {room.status === "available" && (
+              <button onClick={() => changeStatus(room._id, "maintenance")}>
+                Set Maintenance
+              </button>
+            )}
+            {room.status === "maintenance" && (
+              <button onClick={() => changeStatus(room._id, "available")}>
+                Set Available
+              </button>
+            )}
+
+            {/* No manual Occupied button */}
+          </div>
         ))}
-      </Grid>
-    </Container>
+      </div>
+    </div>
   );
 }

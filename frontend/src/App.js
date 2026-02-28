@@ -224,6 +224,7 @@ import Contact from "./components/Contact";
 
 // Role Dashboards
 import AdminDashboard from "./pages/AdminDashboard";
+import Adminstat from "./pages/Adminstat";
 import StaffDashboard from "./pages/StaffDashboard";
 import AdminFeedback from "./pages/AdminFeedback";
 import AdminRegisteredUsers from "./pages/AdminRegisteredUsers";
@@ -339,7 +340,15 @@ export default function App() {
           }
         />
         <Route/>
-
+ <Route/>
+         <Route
+          path="/adminstat"
+           element={
+            <ProtectedRoute allowedRole="admin">
+              <Adminstat />
+            </ProtectedRoute>
+          }
+        />
          <Route/>
          <Route
           path="/adminrooms"
