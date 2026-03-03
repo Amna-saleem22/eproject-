@@ -1,5 +1,5 @@
 import express from "express";
-import { makePayment, getPaymentByBookingId } from "../controllers/paymentController.js";
+import { makePayment, getAllPayments,getPaymentByBookingId } from "../controllers/paymentController.js";
 
 const router = express.Router();
 
@@ -9,4 +9,6 @@ router.post("/pay", makePayment);
 // Fetch payment by booking ID
 router.get("/booking/:bookingId", getPaymentByBookingId);
 
+// Admin: Get all payments
+router.get("/all", getAllPayments);
 export default router;

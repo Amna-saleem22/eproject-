@@ -231,7 +231,9 @@ import AdminRegisteredUsers from "./pages/AdminRegisteredUsers";
 import AdminCreateStaff from "./pages/AdminCreateStaff";
 import AdminStafflist from "./pages/AdminStafflist";
 import AdminRooms from "./pages/AdminRooms";
+import AdminPayments from "./pages/AdminPayments";
 
+import './App.css';
 // ================= PROTECTED ROUTE =================
 function ProtectedRoute({ children, allowedRole }) {
   const token = localStorage.getItem("token");
@@ -336,6 +338,15 @@ export default function App() {
            element={
             <ProtectedRoute allowedRole="admin">
               <AdminRegisteredUsers />
+            </ProtectedRoute>
+          }
+        />
+        <Route/>
+         <Route
+          path="/adminpayment"
+           element={
+            <ProtectedRoute allowedRole="admin">
+              <AdminPayments />
             </ProtectedRoute>
           }
         />

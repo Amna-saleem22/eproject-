@@ -90,3 +90,58 @@ export const getPaymentByBookingId = async (req, res) => {
     });
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===============================
+   GET ALL PAYMENTS FOR ADMIN
+================================ */
+export const getAllPayments = async (req, res) => {
+  try {
+    // Optional: date filter
+    const { fromDate, toDate } = req.query;
+    let filter = {};
+
+    if (fromDate && toDate) {
+      filter.createdAt = {
+        $gte: new Date(fromDate),
+        $lte: new Date(toDate),
+      };
+    }
+
+    // Fetch all payments
+    const payments = await Payment.find(filter)
+      .sort({ createdAt: -1 }) // latest first
+      .populate("bookingId", "room customerName checkIn checkOut"); // optional: booking info
+
+    // Total revenue calculation
+    const totalRevenue = payments
+      .filter(p => p.paymentStatus === "paid")
+      .reduce((sum, p) => sum + p.amount, 0); // make sure Payment model has amount field
+
+    res.status(200).json({
+      success: true,
+      count: payments.length,
+      totalRevenue,
+      payments,
+    });
+  } catch (error) {
+    console.error("Fetch All Payments Error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

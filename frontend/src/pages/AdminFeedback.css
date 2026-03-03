@@ -1,0 +1,238 @@
+:root {
+  /* Dark theme color palette */
+  --bg-primary: #0A0F1E;
+  --bg-secondary: #141B2B;
+  --card-bg: #1E2639;
+  --card-hover: #2A3348;
+  --accent-gold: #D4AF37;
+  --accent-gold-light: #F4D03F;
+  --text-primary: #FFFFFF;
+  --text-secondary: #B0B7C3;
+  --text-muted: #6B7280;
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  
+  /* Shadows */
+  --shadow-sm: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.4);
+  --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.5);
+  
+  /* Transitions */
+  --transition-default: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-transform: transform 0.2s ease-in-out;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  /* Border radius */
+  --radius-card: 16px;
+  --radius-sm: 8px;
+}
+
+.feedback-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  min-height: 100vh;
+}
+
+.feedback-header {
+  color: var(--text-primary) !important;
+  font-family: 'Playfair Display', 'Times New Roman', serif !important;
+  font-weight: 600 !important;
+  font-size: 2.5rem !important;
+  letter-spacing: -0.5px;
+  margin-bottom: var(--spacing-xl) !important;
+  position: relative;
+  display: inline-block;
+}
+
+.header-accent {
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-gold), var(--accent-gold-light));
+  border-radius: 3px;
+}
+
+.feedback-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+}
+
+.feedback-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-default);
+  border: 1px solid var(--border-subtle);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.feedback-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+  background: var(--card-hover);
+  border-color: rgba(212, 175, 55, 0.2);
+}
+
+.card-content {
+  padding: var(--spacing-lg);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.guest-name {
+  font-family: 'Montserrat', 'Helvetica', sans-serif;
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+  position: relative;
+  padding-left: var(--spacing-sm);
+}
+
+.guest-name::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  background: linear-gradient(180deg, var(--accent-gold), var(--accent-gold-light));
+  border-radius: 3px;
+}
+
+.rating-wrapper {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px 8px;
+  border-radius: 20px;
+  border: 1px solid var(--border-subtle);
+}
+
+.rating-wrapper .MuiRating-iconFilled {
+  color: var(--accent-gold);
+}
+
+.rating-wrapper .MuiRating-iconEmpty {
+  color: var(--text-muted);
+}
+
+.remark-text {
+  font-family: 'Inter', 'Arial', sans-serif;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: var(--spacing-md) 0;
+  font-size: 0.95rem;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--border-subtle);
+  border-top: 1px solid var(--border-subtle);
+  min-height: 60px;
+}
+
+.room-info {
+  font-family: 'Inter', 'Arial', sans-serif;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .feedback-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+  
+  .feedback-container {
+    padding: var(--spacing-md);
+  }
+  
+  .feedback-header {
+    font-size: 2rem !important;
+  }
+  
+  .card-content {
+    padding: var(--spacing-md);
+  }
+  
+  .guest-name {
+    font-size: 1.1rem;
+  }
+}
+
+/* Tablet responsiveness */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .feedback-grid {
+    gap: var(--spacing-md);
+  }
+}
+
+/* Loading state for cards */
+.feedback-card.loading {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Custom scrollbar for premium feel */
+.feedback-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.feedback-container::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+.feedback-container::-webkit-scrollbar-thumb {
+  background: var(--accent-gold);
+  border-radius: 4px;
+}
+
+.feedback-container::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-gold-light);
+}
+
+/* Import premium fonts - add these to your index.html or App.js */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@400;500;600&family=Inter:wght@300;400;500&display=swap');

@@ -67,12 +67,13 @@ const Navbar = () => {
     { text: "Logout", action: handleLogout, icon: <LoginIcon /> },
   ];
    const adminItems = [
-    { text: "Admin Panel", path: "/admin", icon: <AdminPanelSettingsIcon /> },
-    { text: "Create Staff", path: "/admincreatestaff", icon: <BadgeIcon /> }, 
+    { text: "Overview", path: "/admin", icon: <AdminPanelSettingsIcon /> },
+    { text: "Staff Management", path: "/admincreatestaff", icon: <BadgeIcon /> }, 
    // { text: "Staff List", path: "/adminstafflist", icon: <BadgeIcon /> },
-    { text: "Admin Rooms", path: "/adminrooms", icon: <HotelIcon /> },
+    { text: "Hotels Rooms", path: "/adminrooms", icon: <HotelIcon /> },
+      { text: "Payments", path: "/adminpayment", icon: <AdminPanelSettingsIcon /> },
     { text: "All Booking", path: "/adminstat", icon: <DiamondIcon /> },
-    { text: "Admin Feedback", path: "/adminfeedback", icon: <RateReviewIcon /> },
+    { text: "Guest Feedback", path: "/adminfeedback", icon: <RateReviewIcon /> },
      { text: 'Followers', path: '/adminusers', icon: <AdminPanelSettingsIcon /> },
      { text: "Logout", action: handleLogout, icon: <LoginIcon /> },
   ];
