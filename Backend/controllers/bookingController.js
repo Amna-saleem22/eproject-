@@ -1,5 +1,65 @@
 import Booking from "../models/Booking.js";
 import mongoose from "mongoose";
+import Room from "../models/Room.js"; // ✅ missing import
+
+
+
+
+
+export const confirmBooking = async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    // Step 1: Find available room of requested type
+    let room = await Room.findOne({ type: booking.roomType, status: "available" });
+    let upgrade = false;
+    let extraService = "";
+
+    if (!room) {
+      // Upgrade if no exact room
+      room = await Room.findOne({ status: "available" });
+      if (room) {
+        upgrade = true;
+        extraService = "Free Breakfast Included 🍽️";
+      }
+    }
+
+    if (!room) {
+      return res.status(400).json({ message: "No rooms available" });
+    }
+
+    // Assign room
+    booking.status = "confirmed";
+    booking.assignedRoom = room._id;
+    booking.upgrade = upgrade;
+    booking.extraService = extraService;
+
+    await booking.save();
+
+    res.json({ message: "Room Assigned Successfully", booking });
+  } catch (error) {
+    console.error("Error confirming booking:", error);
+    res.status(500).json({ message: error.message || "Error confirming booking" });
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ===============================
    GET BOOKING BY ID
@@ -121,47 +181,47 @@ export const updateBooking = async (req, res) => {
   }
 };
 
-export const confirmBooking = async (req, res) => {
-  try {
-    const booking = await Booking.findById(req.params.id);
+// export const confirmBooking = async (req, res) => {
+//   try {
+//     const booking = await Booking.findById(req.params.id);
 
-    if (!booking) {
-      return res.status(404).json({ message: "Booking not found" });
-    }
+//     if (!booking) {
+//       return res.status(404).json({ message: "Booking not found" });
+//     }
 
-    // Step 1: Find available room of requested type
-    let room = await Room.findOne({
-      type: booking.roomType,
-      status: "available",
-    });
+//     // Step 1: Find available room of requested type
+//     let room = await Room.findOne({
+//       type: booking.roomType,
+//       status: "available",
+//     });
 
-    let upgrade = false;
-    let extraService = "";
+//     let upgrade = false;
+//     let extraService = "";
 
-    // Step 2: If not found → find higher type
-    if (!room) {
-      room = await Room.findOne({ status: "available" });
+//     // Step 2: If not found → find higher type
+//     if (!room) {
+//       room = await Room.findOne({ status: "available" });
 
-      if (room) {
-        upgrade = true;
-        extraService = "Free Breakfast Included 🍽️";
-      }
-    }
+//       if (room) {
+//         upgrade = true;
+//         extraService = "Free Breakfast Included 🍽️";
+//       }
+//     }
 
-    if (!room) {
-      return res.status(400).json({ message: "No rooms available" });
-    }
+//     if (!room) {
+//       return res.status(400).json({ message: "No rooms available" });
+//     }
 
-    // Step 3: Assign room
-    booking.status = "confirmed";
-    booking.assignedRoom = room._id;
-    booking.upgrade = upgrade;
-    booking.extraService = extraService;
+//     // Step 3: Assign room
+//     booking.status = "confirmed";
+//     booking.assignedRoom = room._id;
+//     booking.upgrade = upgrade;
+//     booking.extraService = extraService;
 
-    await booking.save();
+//     await booking.save();
 
-    res.json({ message: "Room Assigned Successfully", booking });
-  } catch (error) {
-    res.status(500).json({ message: "Error confirming booking" });
-  }
-};
+//     res.json({ message: "Room Assigned Successfully", booking });
+//   } catch (error) {
+//     res.status(500).json({ message: "Error confirming booking" });
+//   }
+// };

@@ -187,7 +187,7 @@ export default function UserDashboard() {
                     <Typography>🍽️ Food Package: {booking.foodPackage}</Typography>
                   )}
                   <Typography variant="h6" sx={{ mt: 2 }}>
-                    Total: ₹{(booking.totalAmount || 0).toLocaleString()}
+                    Total: RS{(booking.totalAmount || 0).toLocaleString()}
                   </Typography>
 
                   <Box sx={{ mt: 2, display: "flex", alignItems: "center", gap: 1 }}>

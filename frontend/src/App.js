@@ -232,8 +232,10 @@ import AdminCreateStaff from "./pages/AdminCreateStaff";
 import AdminStafflist from "./pages/AdminStafflist";
 import AdminRooms from "./pages/AdminRooms";
 import AdminPayments from "./pages/AdminPayments";
+import AdminSupport from "./pages/AdminSupport";
 
 import './App.css';
+import GuestSupport from "./pages/GuestSupport";
 // ================= PROTECTED ROUTE =================
 function ProtectedRoute({ children, allowedRole }) {
   const token = localStorage.getItem("token");
@@ -391,6 +393,16 @@ export default function App() {
           }
         />
         <Route/>
+         <Route
+          path="/adminsupport"
+           element={
+            <ProtectedRoute allowedRole="admin">
+              <AdminSupport />
+            </ProtectedRoute>
+          }
+        />
+        <Route/>
+        
 
 
         {/* ================= BOOKING FLOW ================= */}
@@ -399,6 +411,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <BookingForm />
+            </ProtectedRoute>
+          }
+        />
+         <Route
+          path="/guestsupport"
+          element={
+            <ProtectedRoute>
+              <GuestSupport />
             </ProtectedRoute>
           }
         />
