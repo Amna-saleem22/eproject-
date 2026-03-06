@@ -214,6 +214,7 @@ import staffRoutes from "./routes/staffRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
+import invoiceRoutes from "./routes/invoiceRoutes.js";
 
 const app = express();
 
@@ -376,6 +377,8 @@ app.use("/api/services", serviceRoutes);
 app.use("/api/feedbacks", feedbackRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/payments", paymentRoutes);
+
+app.use("/api/invoice", invoiceRoutes);
 app.use("/api/chat", chatRoutes);
 
 

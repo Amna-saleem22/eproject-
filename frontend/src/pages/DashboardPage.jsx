@@ -36,7 +36,6 @@ export default function UserDashboard() {
       auth: { token },
     });
 
-    // Join user's personal room for updates
     socket.emit("join-user-room", userId);
 
     socket.on("bookingUpdated", (updatedBooking) => {
@@ -44,7 +43,6 @@ export default function UserDashboard() {
         prev.map((b) => (b._id === updatedBooking._id ? updatedBooking : b))
       );
 
-      // Show snackbar based on booking status
       if (updatedBooking.status === "confirmed")
         showSnackbar("Your booking is confirmed! ✅", "success");
       else if (updatedBooking.status === "cancelled")
@@ -69,9 +67,10 @@ export default function UserDashboard() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setBookings(res.data.bookings || res.data || []);
+      // Only show bookings for the logged-in user
+      setBookings(res.data.bookings || []);
     } catch (err) {
-      console.error(err);
+      console.error("Fetch bookings error:", err);
       showSnackbar(
         err.response?.data?.message || err.message || "Error fetching bookings",
         "error"
@@ -86,34 +85,31 @@ export default function UserDashboard() {
   }, []);
 
   // ===================== CANCEL BOOKING =====================
-  const cancelBooking = async (id) => {
-    try {
-      setCancellingId(id);
+const cancelBooking = async (id) => {
+  try {
+    setCancellingId(id);
 
-      const token = localStorage.getItem("token");
-      await axiosInstance.put(
-        `/bookings/${id}`,
-        { status: "cancelled" },
-        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
-      );
+    const token = localStorage.getItem("token");
+    const res = await axiosInstance.put(
+      `/bookings/${id}/cancel`, // updated route
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-      setBookings((prev) =>
-        prev.map((b) => (b._id === id ? { ...b, status: "cancelled", assignedRoom: null } : b))
-      );
+    // ✅ Remove the booking from dashboard immediately
+    setBookings((prev) => prev.filter((b) => b._id !== id));
 
-      showSnackbar("Booking cancelled successfully ✅", "success");
-    } catch (err) {
-      console.error(err);
-      showSnackbar(
-        err.response?.data?.message || "Error cancelling booking",
-        "error"
-      );
-      fetchBookings();
-    } finally {
-      setCancellingId(null);
-    }
-  };
-
+    showSnackbar(res.data.message || "Booking cancelled successfully ✅", "success");
+  } catch (err) {
+    console.error(err);
+    showSnackbar(
+      err.response?.data?.message || "Error cancelling booking",
+      "error"
+    );
+  } finally {
+    setCancellingId(null);
+  }
+};
   // ===================== SNACKBAR =====================
   const showSnackbar = (message, severity) => {
     setSnackbar({ open: true, message, severity });
@@ -136,6 +132,7 @@ export default function UserDashboard() {
     }
   };
 
+  // ===================== LOADING =====================
   if (loading) {
     return (
       <Container sx={{ mt: 5, textAlign: "center" }}>
@@ -210,7 +207,6 @@ export default function UserDashboard() {
                     </Button>
                   )}
 
-                  {/* ===================== ASSIGNED ROOM ===================== */}
                   <Typography sx={{ mt: 2 }}>
                     Assigned Room:{" "}
                     {booking.assignedRoom?.roomNumber

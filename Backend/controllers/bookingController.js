@@ -1,64 +1,35 @@
 import Booking from "../models/Booking.js";
+import Room from "../models/Room.js";
 import mongoose from "mongoose";
-import Room from "../models/Room.js"; // ✅ missing import
 
-
-
-
-
-export const confirmBooking = async (req, res) => {
+/* ===============================
+   CREATE BOOKING
+================================ */
+export const createBooking = async (req, res) => {
   try {
-    const booking = await Booking.findById(req.params.id);
 
-    if (!booking) {
-      return res.status(404).json({ message: "Booking not found" });
-    }
+    const booking = await Booking.create({
+      ...req.body,
+      user: req.user._id,
+      status: "pending",
+    });
 
-    // Step 1: Find available room of requested type
-    let room = await Room.findOne({ type: booking.roomType, status: "available" });
-    let upgrade = false;
-    let extraService = "";
+    res.status(201).json({
+      success: true,
+      booking,
+    });
 
-    if (!room) {
-      // Upgrade if no exact room
-      room = await Room.findOne({ status: "available" });
-      if (room) {
-        upgrade = true;
-        extraService = "Free Breakfast Included 🍽️";
-      }
-    }
-
-    if (!room) {
-      return res.status(400).json({ message: "No rooms available" });
-    }
-
-    // Assign room
-    booking.status = "confirmed";
-    booking.assignedRoom = room._id;
-    booking.upgrade = upgrade;
-    booking.extraService = extraService;
-
-    await booking.save();
-
-    res.json({ message: "Room Assigned Successfully", booking });
   } catch (error) {
-    console.error("Error confirming booking:", error);
-    res.status(500).json({ message: error.message || "Error confirming booking" });
+
+    console.error("Create booking error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /* ===============================
@@ -69,16 +40,52 @@ export const getBookingById = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid booking ID",
-      });
+      return res.status(400).json({ success: false, message: "Invalid booking ID" });
     }
 
-    const booking = await Booking.findById(id).populate(
-      "user",
-      "name email"
-    );
+    const booking = await Booking.findById(id)
+      .populate("user", "name email")
+      .populate("assignedRoom");
+
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found" });
+    }
+
+    // Derived fields calculation
+    const roomsCount = booking.assignedRoom ? 1 : 0; // ya agar multiple rooms allow hai to us logic se
+    const totalGuests = (booking.adults || 0) + (booking.children || 0);
+    const nights =
+      booking.checkInDate && booking.checkOutDate
+        ? Math.ceil(
+            (new Date(booking.checkOutDate) - new Date(booking.checkInDate)) /
+              (1000 * 60 * 60 * 24)
+          )
+        : 1;
+
+    res.status(200).json({
+      success: true,
+      booking: {
+        ...booking._doc,
+        roomsCount,
+        totalGuests,
+        nights,
+      },
+    });
+  } catch (error) {
+    console.error("Get booking error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/* ===============================
+   ADMIN CONFIRM BOOKING
+================================ */
+export const confirmBooking = async (req, res) => {
+  try {
+
+    const { bookingId } = req.body;
+
+    const booking = await Booking.findById(bookingId);
 
     if (!booking) {
       return res.status(404).json({
@@ -87,141 +94,121 @@ export const getBookingById = async (req, res) => {
       });
     }
 
+    const room = await Room.findOne({
+      type: booking.roomType,
+      status: "available",
+    });
+
+    if (!room) {
+      return res.status(400).json({
+        success: false,
+        message: "No rooms available",
+      });
+    }
+
+    booking.status = "confirmed";
+    booking.assignedRoom = room._id;
+
+    room.status = "occupied";
+
+    await booking.save();
+    await room.save();
+
     res.json({
       success: true,
+      message: "Booking confirmed and room assigned",
       booking,
     });
+
   } catch (error) {
-    console.error("Fetch booking error:", error);
+
+    console.error("Confirm booking error:", error);
+
     res.status(500).json({
       success: false,
       message: error.message,
     });
+
   }
 };
-// controllers/bookingController.js
+
+
+
+
+
+
+
+
+// ===================== GET USER BOOKINGS =====================
 export const getMyBookings = async (req, res) => {
   try {
+    // req.user._id should come from protect middleware
     const userId = req.user._id;
+
+    if (!userId) {
+      return res.status(400).json({ success: false, message: "Invalid user" });
+    }
+
     const bookings = await Booking.find({ user: userId })
-      .sort({ createdAt: -1 })
-      .populate("assignedRoom"); // ✅ populate assignedRoom
-    res.status(200).json({ bookings });
-  } catch (err) {
-    res.status(500).json({ message: "Error fetching bookings" });
-  }
-};
-/* ===============================
-   CREATE BOOKING
-================================ */
-export const createBooking = async (req, res) => {
-  try {
-    const booking = await Booking.create({
-      ...req.body,
-      user: req.user._id,
-      status: "pending",
-    });
+      .populate("assignedRoom", "roomNumber type") // get room details if assigned
+      .sort({ createdAt: -1 });
 
-    res.status(201).json({
-      success: true,
-      message: "Booking created successfully",
-      booking,
-    });
+    res.status(200).json({ success: true, bookings });
   } catch (error) {
-    console.error("Booking creation error:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    console.error("Get user bookings error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
-/* ===============================
-   USER CANCEL BOOKING
-================================ */
-export const updateBooking = async (req, res) => {
+
+
+
+
+
+
+
+
+
+
+
+// ===================== CANCEL BOOKING =====================
+export const cancelBooking = async (req, res) => {
   try {
-    const booking = await Booking.findById(req.params.id);
+    const { id } = req.params; // Booking ID from frontend
+    const userId = req.user._id;
+
+    // 1️⃣ Find booking and make sure it belongs to the current user
+    const booking = await Booking.findOne({ _id: id, user: userId }).populate("assignedRoom");
 
     if (!booking) {
-      return res.status(404).json({
-        success: false,
-        message: "Booking not found",
-      });
+      return res.status(404).json({ success: false, message: "Booking not found" });
     }
 
-    if (booking.user.toString() !== req.user._id.toString()) {
-      return res.status(403).json({
-        success: false,
-        message: "Not allowed",
-      });
-    }
-
-    if (booking.status !== "pending") {
-      return res.status(400).json({
-        success: false,
-        message: "Only pending bookings can be cancelled",
-      });
-    }
-
+    // 2️⃣ Update booking status
     booking.status = "cancelled";
+
+    // 3️⃣ Release assigned room if exists
+    if (booking.assignedRoom) {
+      const room = await Room.findById(booking.assignedRoom._id);
+      if (room) {
+        room.status = "available";
+        await room.save();
+      }
+      booking.assignedRoom = null;
+    }
+
     await booking.save();
 
-    res.json({
+    // 4️⃣ Emit socket event if using real-time updates (optional)
+    // io.to(userId.toString()).emit("bookingUpdated", booking);
+
+    res.status(200).json({
       success: true,
-      message: "Booking cancelled",
+      message: "Booking cancelled successfully",
       booking,
     });
   } catch (error) {
-    console.error("Update booking error:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    console.error("Cancel booking error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
-// export const confirmBooking = async (req, res) => {
-//   try {
-//     const booking = await Booking.findById(req.params.id);
-
-//     if (!booking) {
-//       return res.status(404).json({ message: "Booking not found" });
-//     }
-
-//     // Step 1: Find available room of requested type
-//     let room = await Room.findOne({
-//       type: booking.roomType,
-//       status: "available",
-//     });
-
-//     let upgrade = false;
-//     let extraService = "";
-
-//     // Step 2: If not found → find higher type
-//     if (!room) {
-//       room = await Room.findOne({ status: "available" });
-
-//       if (room) {
-//         upgrade = true;
-//         extraService = "Free Breakfast Included 🍽️";
-//       }
-//     }
-
-//     if (!room) {
-//       return res.status(400).json({ message: "No rooms available" });
-//     }
-
-//     // Step 3: Assign room
-//     booking.status = "confirmed";
-//     booking.assignedRoom = room._id;
-//     booking.upgrade = upgrade;
-//     booking.extraService = extraService;
-
-//     await booking.save();
-
-//     res.json({ message: "Room Assigned Successfully", booking });
-//   } catch (error) {
-//     res.status(500).json({ message: "Error confirming booking" });
-//   }
-// };

@@ -1,0 +1,17 @@
+1 Guest creates booking
+      ↓
+2 Booking status = pending
+      ↓
+3 Summary page
+      ↓
+4 Payment page
+      ↓
+5 Payment success
+      ↓
+6 Invoice generated
+      ↓
+7 Admin confirms booking
+      ↓
+8 Room assigned
+      ↓
+9 Booking status = confirmed

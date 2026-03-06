@@ -1,21 +1,26 @@
-
 import express from "express";
 import {
   createBooking,
-  getMyBookings,
   confirmBooking,
-  updateBooking,
   getBookingById,
+  cancelBooking,
+  getMyBookings,
 } from "../controllers/bookingController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 router.use(protect);
-router.get("/my", protect, getMyBookings);
+
+// Create booking
 router.post("/", createBooking);
-router.get("/:id", confirmBooking);
+
+router.get("/my", getMyBookings);       // <-- fetch only user's bookings
+// Get booking by id
 router.get("/:id", getBookingById);
-router.put("/:id", updateBooking);
+
+router.put("/:id/cancel", cancelBooking); // Cancel booking route
+// Admin confirm booking
+router.post("/confirm", confirmBooking);
 
 export default router;

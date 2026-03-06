@@ -393,262 +393,641 @@ const Home = () => {
         </motion.div>
       </Box>
 
-      {/* Featured Rooms Section */}
-      <Box
-        ref={featuredRef}
-        component={motion.section}
-        initial="hidden"
-        animate={isFeaturedInView ? "visible" : "hidden"}
-        variants={staggerContainer}
-        sx={{
-          py: SPACING.sectionY,
-          px: SPACING.sectionX,
-          backgroundColor: COLORS.background,
-          position: 'relative',
-        }}
-      >
-        <Container maxWidth={CONTAINER.wide}>
-          <motion.div variants={fadeInUp}>
-            <Typography
-              variant="h2"
-              align="center"
-              sx={{
-                color: 'white',
-                mb: 2,
-                fontSize: { xs: '2rem', md: '3rem' },
-              }}
-            >
-              Featured
-              <Typography component="span" sx={{ color: COLORS.primaryLight, ml: 2 }}>
-                Luxury Rooms
-              </Typography>
-            </Typography>
-            <Typography
-              variant="body1"
-              align="center"
-              sx={{
-                color: COLORS.textSecondary,
-                mb: SPACING.sectionTitleBottom,
-                maxWidth: '800px',
-                mx: 'auto',
-                fontSize: '0.9375rem',
-              }}
-            >
-              Experience the epitome of comfort and elegance in our carefully curated selection of premium suites
-            </Typography>
-          </motion.div>
 
-          <Grid container spacing={SPACING.gridGap}>
-            {featuredRooms.map((room, index) => (
-              <Grid item xs={12} md={4} key={room.id}>
-                <motion.div
-                  variants={{ ...fadeInUp, hover: { y: -20 } }}
-                  whileHover="hover"
-                >
-                  <Card
-                    sx={{
-                      height: '100%',
-                      backgroundColor: '#1a1a1a',
-                      borderRadius: 4,
-                      overflow: 'hidden',
-                      position: 'relative',
-                      border: `1px solid ${COLORS.border}`,
-                      '&:hover': {
-                        border: `1px solid ${COLORS.borderStrong}`,
-                      },
-                    }}
-                  >
-                    <Box sx={{ position: 'relative', overflow: 'hidden' }}>
-                      <CardMedia
-                        component="img"
-                        height="300"
-                        image={room.image}
-                        alt={room.name}
-                        sx={{
-                          transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
-                          '&:hover': {
-                            transform: 'scale(1.1)',
-                          },
-                        }}
-                      />
-                      <Chip
-                        label={`$${room.price}/night`}
-                        sx={{
-                          position: 'absolute',
-                          top: 16,
-                          right: 16,
-                          backgroundColor: COLORS.primaryLight,
-                          color: 'white',
-                          fontWeight: 600,
-                          fontSize: '1rem',
-                          px: 1,
-                        }}
-                      />
-                    </Box>
-                    <CardContent sx={{ p: SPACING.contentGap }}>
-                      <Typography variant="h5" sx={{ color: 'white', fontWeight: 600, mb: 1 }}>
-                        {room.name}
-                      </Typography>
-                      
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <Rating value={room.rating} readOnly sx={{ color: COLORS.primaryLight, mr: 1 }} />
-                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)' }}>
-                          ({room.reviews} reviews)
-                        </Typography>
-                      </Box>
 
-                      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 3 }}>
-                        {room.features.map((feature, i) => (
-                          <Chip
-                            key={i}
-                            label={feature}
-                            size="small"
-                            sx={{
-                              backgroundColor: 'rgba(13,71,161,0.1)',
-                              color: COLORS.primaryLight,
-                              border: `1px solid ${COLORS.borderStrong}`,
-                            }}
-                          />
-                        ))}
-                      </Box>
 
-                      <Button
-                        fullWidth
-                        variant="outlined"
-                        endIcon={<ArrowForwardIcon />}
-                        sx={{
-                          borderColor: COLORS.primaryLight,
-                          color: COLORS.primaryLight,
-                          '&:hover': {
-                            borderColor: COLORS.primaryDark,
-                            backgroundColor: 'rgba(13,71,161,0.1)',
-                          },
-                        }}
-                      >
-                        View Details
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </Grid>
-            ))}
-          </Grid>
 
+
+
+
+
+
+
+{/* Featured Rooms Section - Redesigned */}
+<Box
+  ref={featuredRef}
+  component={motion.section}
+  initial="hidden"
+  animate={isFeaturedInView ? "visible" : "hidden"}
+  variants={staggerContainer}
+  sx={{
+    py: { xs: 8, sm: 10, md: 12, lg: 15 },
+    px: { xs: 2, sm: 3, md: 4, lg: 6 },
+    backgroundColor: COLORS.background,
+    position: 'relative',
+    background: 'linear-gradient(180deg, #0a0a0a 0%, #141414 100%)',
+  }}
+>
+  {/* Decorative Elements */}
+  <Box
+    sx={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: '1px',
+      background: 'linear-gradient(90deg, transparent, rgba(25,118,210,0.3), transparent)',
+    }}
+  />
+  
+  <Container 
+    maxWidth={CONTAINER.wide}
+    sx={{
+      px: { xs: 2, sm: 3, md: 4 },
+      position: 'relative',
+      zIndex: 2,
+    }}
+  >
+    {/* Section Header with Modern Design */}
+    <motion.div variants={fadeInUp}>
+      <Box sx={{ textAlign: 'center', mb: { xs: 6, sm: 8, md: 10 } }}>
+        <Typography
+          variant="overline"
+          sx={{
+            color: COLORS.primaryLight,
+            fontSize: { xs: '0.875rem', sm: '1rem' },
+            letterSpacing: { xs: 4, sm: 6 },
+            mb: 2,
+            display: 'block',
+            textTransform: 'uppercase',
+            fontWeight: 500,
+          }}
+        >
+          Luxury Collection
+        </Typography>
+        
+        <Typography
+          variant="h2"
+          sx={{
+            color: 'white',
+            mb: { xs: 2, sm: 3 },
+            fontSize: { 
+              xs: '2.2rem', 
+              sm: '2.8rem', 
+              md: '3.2rem', 
+              lg: '3.8rem' 
+            },
+            fontWeight: 700,
+            lineHeight: 1.2,
+            position: 'relative',
+            display: 'inline-block',
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              bottom: -10,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: { xs: 60, sm: 80, md: 100 },
+              height: 3,
+              background: `linear-gradient(90deg, ${COLORS.primaryLight}, ${COLORS.primaryDark})`,
+              borderRadius: 2,
+            },
+          }}
+        >
+          Featured Luxury Rooms
+        </Typography>
+        
+        <Typography
+          variant="body1"
+          sx={{
+            color: 'rgba(255,255,255,0.7)',
+            maxWidth: { xs: '100%', sm: '90%', md: '700px' },
+            mx: 'auto',
+            fontSize: { 
+              xs: '0.95rem', 
+              sm: '1.05rem', 
+              md: '1.1rem' 
+            },
+            px: { xs: 2, sm: 3 },
+            lineHeight: 1.8,
+            mt: { xs: 3, sm: 4 },
+          }}
+        >
+          Discover our most exclusive accommodations, where every detail has been精心 crafted to provide an unforgettable experience of luxury and comfort
+        </Typography>
+      </Box>
+    </motion.div>
+
+    {/* Room Cards Grid */}
+    <Grid 
+      container 
+      spacing={{ xs: 3, sm: 4, md: 4, lg: 5 }}
+      sx={{
+        justifyContent: 'center',
+      }}
+    >
+      {featuredRooms.map((room, index) => (
+        <Grid 
+          item 
+          xs={12} 
+          sm={6} 
+          lg={4} 
+          key={room.id}
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
           <motion.div
             variants={fadeInUp}
-            style={{ textAlign: 'center', marginTop: 48 }}
+            whileHover="hover"
+            initial="initial"
+            style={{
+              width: '100%',
+              height: '100%',
+            }}
           >
-            <Button
-              variant="text"
-              endIcon={<ArrowForwardIcon />}
+            <Card
               sx={{
-                color: COLORS.primaryLight,
-                fontSize: '1.0625rem',
+                height: '100%',
+                backgroundColor: '#1E1E1E',
+                borderRadius: { xs: 4, sm: 5, md: 6 },
+                overflow: 'hidden',
+                position: 'relative',
+                border: '1px solid rgba(255,255,255,0.05)',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
                 '&:hover': {
-                  color: COLORS.primaryDark,
+                  border: `1px solid ${COLORS.primaryLight}40`,
+                  transform: { md: 'translateY(-12px)' },
+                  boxShadow: `0 30px 60px ${COLORS.primaryLight}20`,
                 },
               }}
             >
-              View All Rooms
-            </Button>
-          </motion.div>
-        </Container>
-      </Box>
+              {/* Image Container with Overlay */}
+              <Box sx={{ 
+                position: 'relative', 
+                overflow: 'hidden',
+                aspectRatio: '4/3',
+              }}>
+                <CardMedia
+                  component="img"
+                  image={room.image}
+                  alt={room.name}
+                  sx={{
+                    transition: 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+                    objectFit: 'cover',
+                    width: '100%',
+                    height: '100%',
+                    '&:hover': {
+                      transform: 'scale(1.15)',
+                    },
+                  }}
+                />
+                
+                {/* Gradient Overlay */}
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.8) 100%)',
+                    zIndex: 1,
+                  }}
+                />
+                
+                {/* Price Tag */}
+                <Chip
+                  label={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <Typography component="span" sx={{ fontSize: '0.8rem', opacity: 0.9 }}>$</Typography>
+                      <Typography component="span" sx={{ fontSize: '1.1rem', fontWeight: 700 }}>{room.price}</Typography>
+                      <Typography component="span" sx={{ fontSize: '0.7rem', opacity: 0.7 }}>/night</Typography>
+                    </Box>
+                  }
+                  sx={{
+                    position: 'absolute',
+                    top: { xs: 16, sm: 20 },
+                    right: { xs: 16, sm: 20 },
+                    backgroundColor: 'rgba(25,118,210,0.95)',
+                    color: 'white',
+                    fontWeight: 600,
+                    fontSize: { xs: '0.9rem', sm: '1rem' },
+                    px: { xs: 1.5, sm: 2 },
+                    py: { xs: 1, sm: 1.2 },
+                    height: 'auto',
+                    borderRadius: 3,
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    backdropFilter: 'blur(5px)',
+                    zIndex: 3,
+                    boxShadow: '0 4px 15px rgba(25,118,210,0.3)',
+                    '& .MuiChip-label': {
+                      px: { xs: 1, sm: 1.5 },
+                    },
+                  }}
+                />
 
-      {/* Services Section */}
-      <Box
-        ref={servicesRef}
-        component={motion.section}
-        initial="hidden"
-        animate={isServicesInView ? "visible" : "hidden"}
-        variants={staggerContainer}
-        sx={{
-          py: SPACING.sectionY,
-          px: SPACING.sectionX,
-          background: 'linear-gradient(135deg, #0a0a0a 0%, #111111 100%)',
-          position: 'relative',
-        }}
-      >
-        <Container maxWidth={CONTAINER.wide}>
-          <motion.div variants={fadeInUp}>
-            <Typography
-              variant="h2"
-              align="center"
-              sx={{
-                color: 'white',
-                mb: 2,
-                fontSize: { xs: '2rem', md: '3rem' },
-              }}
-            >
-                Premium
-              <Typography component="span" sx={{ color: COLORS.primaryLight, ml: 2 }}>
-                Services
-              </Typography>
-            </Typography>
-            <Typography
-              variant="body1"
-              align="center"
-              sx={{
-                color: 'rgba(255,255,255,0.7)',
-                mb: 8,
-                maxWidth: '800px',
-                mx: 'auto',
-              }}
-            >
-              Indulge in our world-class amenities and services designed for the discerning traveler
-            </Typography>
-          </motion.div>
-
-          <Grid container spacing={SPACING.gridGap}>
-            {services.map((service, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
-                <motion.div
-                  variants={{ ...fadeInUp, hover: { scale: 1.05, y: -10 } }}
-                  whileHover="hover"
+                {/* Room Name Overlay */}
+                <Typography
+                  variant="h5"
+                  sx={{
+                    position: 'absolute',
+                    bottom: { xs: 16, sm: 20 },
+                    left: { xs: 16, sm: 20 },
+                    color: 'white',
+                    fontWeight: 600,
+                    fontSize: { xs: '1.3rem', sm: '1.5rem', md: '1.6rem' },
+                    zIndex: 3,
+                    textShadow: '0 2px 10px rgba(0,0,0,0.3)',
+                  }}
                 >
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      p: SPACING.contentGap,
-                      textAlign: 'center',
-                      backgroundColor: COLORS.surface,
-                      backdropFilter: 'blur(10px)',
-                      border: `1px solid ${COLORS.border}`,
+                  {room.name}
+                </Typography>
+              </Box>
+
+              <CardContent sx={{ 
+                p: { xs: 2.5, sm: 3, md: 3.5 },
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                background: '#1E1E1E',
+              }}>
+                {/* Rating and Reviews */}
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between',
+                  mb: { xs: 2, sm: 2.5 },
+                  flexWrap: 'wrap',
+                  gap: 1,
+                }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Rating 
+                      value={room.rating} 
+                      readOnly 
+                      precision={0.5}
+                      sx={{ 
+                        color: COLORS.primaryLight,
+                        '& .MuiRating-iconFilled': {
+                          color: COLORS.primaryLight,
+                        },
+                        fontSize: { xs: '1.1rem', sm: '1.2rem' },
+                      }} 
+                    />
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        color: 'rgba(255,255,255,0.5)',
+                        fontWeight: 500,
+                        fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                      }}
+                    >
+                      ({room.reviews} reviews)
+                    </Typography>
+                  </Box>
+                  
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      color: COLORS.primaryLight,
+                      fontWeight: 600,
+                      fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                      background: 'rgba(25,118,210,0.1)',
+                      px: 1.5,
+                      py: 0.5,
                       borderRadius: 2,
-                      height: '100%',
-                      transition: 'all 0.3s ease',
+                    }}
+                  >
+                    Best Seller
+                  </Typography>
+                </Box>
+
+                {/* Room Features */}
+                <Box sx={{ 
+                  display: 'flex', 
+                  gap: { xs: 0.8, sm: 1 }, 
+                  flexWrap: 'wrap', 
+                  mb: { xs: 2.5, sm: 3 },
+                }}>
+                  {room.features.map((feature, i) => (
+                    <Chip
+                      key={i}
+                      label={feature}
+                      size="small"
+                      sx={{
+                        backgroundColor: 'rgba(255,255,255,0.05)',
+                        color: 'rgba(255,255,255,0.8)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' },
+                        height: { xs: 28, sm: 32 },
+                        borderRadius: 2,
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          backgroundColor: 'rgba(25,118,210,0.15)',
+                          borderColor: COLORS.primaryLight,
+                          color: COLORS.primaryLight,
+                        },
+                        '& .MuiChip-label': {
+                          px: { xs: 1.2, sm: 1.5 },
+                        },
+                      }}
+                    />
+                  ))}
+                </Box>
+
+                {/* Action Buttons */}
+                <Box sx={{ 
+                  display: 'flex', 
+                  gap: 2,
+                  mt: 'auto',
+                  flexDirection: { xs: 'column', sm: 'row' },
+                }}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    endIcon={<ArrowForwardIcon />}
+                    sx={{
+                      background: `linear-gradient(135deg, ${COLORS.primaryLight} 0%, ${COLORS.primaryDark} 100%)`,
+                      color: 'white',
+                      fontSize: { xs: '0.9rem', sm: '0.95rem' },
+                      py: { xs: 1.2, sm: 1.3 },
+                      px: { xs: 2, sm: 2.5 },
+                      borderRadius: 3,
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      boxShadow: `0 8px 20px ${COLORS.primaryLight}30`,
                       '&:hover': {
-                        border: `1px solid ${COLORS.borderStrong}`,
-                        boxShadow: '0 20px 40px rgba(13,71,161,0.2)',
+                        background: `linear-gradient(135deg, ${COLORS.primaryDark} 0%, ${COLORS.primary} 100%)`,
+                        boxShadow: `0 12px 30px ${COLORS.primaryLight}50`,
                       },
                     }}
                   >
-                    <Box
-                      sx={{
-                        display: 'inline-flex',
-                        p: 2,
-                        borderRadius: '50%',
-                        background: 'rgba(13,71,161,0.1)',
-                        color: COLORS.primaryLight,
-                        mb: 2,
-                      }}
-                    >
-                      {service.icon}
-                    </Box>
-                    <Typography variant="h5" sx={{ color: 'white', fontWeight: 600, mb: 1 }}>
-                      {service.title}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)' }}>
-                      {service.description}
-                    </Typography>
-                  </Paper>
-                </motion.div>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      </Box>
+                    Book Now
+                  </Button>
+                  
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    sx={{
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      color: 'white',
+                      fontSize: { xs: '0.9rem', sm: '0.95rem' },
+                      py: { xs: 1.2, sm: 1.3 },
+                      px: { xs: 2, sm: 2.5 },
+                      borderRadius: 3,
+                      textTransform: 'none',
+                      fontWeight: 500,
+                      borderWidth: 1.5,
+                      '&:hover': {
+                        borderColor: COLORS.primaryLight,
+                        backgroundColor: 'rgba(25,118,210,0.1)',
+                      },
+                    }}
+                  >
+                    Details
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </Grid>
+      ))}
+    </Grid>
 
+    {/* View All Button */}
+    <motion.div
+      variants={fadeInUp}
+      style={{ textAlign: 'center' }}
+    >
+      <Button
+        variant="text"
+        endIcon={<ArrowForwardIcon />}
+        sx={{
+          color: COLORS.primaryLight,
+          fontSize: { xs: '1rem', sm: '1.1rem', md: '1.2rem' },
+          mt: { xs: 6, sm: 8, md: 10 },
+          py: { xs: 1.5, sm: 2 },
+          px: { xs: 3, sm: 4 },
+          position: 'relative',
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            bottom: 0,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: 0,
+            height: 2,
+            background: COLORS.primaryLight,
+            transition: 'width 0.3s ease',
+          },
+          '&:hover::after': {
+            width: '80%',
+          },
+          '&:hover': {
+            backgroundColor: 'transparent',
+            color: COLORS.primaryLight,
+          },
+        }}
+      >
+        Explore All Luxury Rooms
+      </Button>
+    </motion.div>
+  </Container>
+</Box>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{/* Services Section */}
+<Box
+  ref={servicesRef}
+  component={motion.section}
+  initial="hidden"
+  animate={isServicesInView ? "visible" : "hidden"}
+  variants={staggerContainer}
+  sx={{
+    py: { xs: 6, sm: 8, md: 10, lg: 12 },
+    px: { xs: 2, sm: 3, md: 4 },
+    background: 'linear-gradient(135deg, #0a0a0a 0%, #111111 100%)',
+    position: 'relative',
+  }}
+>
+  <Container 
+    maxWidth={CONTAINER.wide}
+    sx={{
+      px: { xs: 2, sm: 3, md: 4 },
+    }}
+  >
+    <motion.div variants={fadeInUp}>
+      <Typography
+        variant="h2"
+        align="center"
+        sx={{
+          color: 'white',
+          mb: { xs: 1, sm: 2 },
+          fontSize: { 
+            xs: '1.8rem', 
+            sm: '2.2rem', 
+            md: '2.5rem', 
+            lg: '3rem' 
+          },
+          lineHeight: 1.2,
+        }}
+      >
+        Premium
+        <Typography 
+          component="span" 
+          sx={{ 
+            color: COLORS.primaryLight, 
+            ml: { xs: 1, sm: 2 },
+            display: { xs: 'block', sm: 'inline' },
+            fontSize: { 
+              xs: '1.8rem', 
+              sm: '2.2rem', 
+              md: '2.5rem', 
+              lg: '3rem' 
+            },
+          }}
+        >
+          Services
+        </Typography>
+      </Typography>
+      <Typography
+        variant="body1"
+        align="center"
+        sx={{
+          color: 'rgba(255,255,255,0.7)',
+          mb: { xs: 4, sm: 5, md: 6, lg: 8 },
+          maxWidth: { xs: '100%', sm: '90%', md: '800px' },
+          mx: 'auto',
+          fontSize: { 
+            xs: '0.875rem', 
+            sm: '0.9375rem', 
+            md: '1rem' 
+          },
+          px: { xs: 2, sm: 3, md: 4 },
+          lineHeight: 1.6,
+        }}
+      >
+        Indulge in our world-class amenities and services designed for the discerning traveler
+      </Typography>
+    </motion.div>
+
+    <Grid 
+      container 
+      spacing={{ xs: 3, sm: 4, md: 4 }}
+      sx={{
+        justifyContent: 'center',
+      }}
+    >
+      {services.map((service, index) => (
+        <Grid 
+          item 
+          xs={12} 
+          sm={6} 
+          md={4} 
+          key={index}
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
+          <motion.div
+            variants={{ ...fadeInUp, hover: { scale: 1.05, y: -10 } }}
+            whileHover="hover"
+            style={{
+              width: '100%',
+              maxWidth: { xs: '100%', sm: '350px', md: '100%' },
+            }}
+          >
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 2.5, sm: 3, md: 3.5 },
+                textAlign: 'center',
+                backgroundColor: COLORS.surface,
+                backdropFilter: 'blur(10px)',
+                border: `1px solid ${COLORS.border}`,
+                borderRadius: { xs: 3, sm: 3.5, md: 4 },
+                height: '100%',
+                transition: 'all 0.3s ease-in-out',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                '&:hover': {
+                  border: `1px solid ${COLORS.borderStrong}`,
+                  boxShadow: '0 20px 40px rgba(13,71,161,0.2)',
+                },
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'inline-flex',
+                  p: { xs: 1.5, sm: 1.75, md: 2 },
+                  borderRadius: '50%',
+                  background: 'rgba(13,71,161,0.1)',
+                  color: COLORS.primaryLight,
+                  mb: { xs: 1.5, sm: 2 },
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    background: 'rgba(13,71,161,0.2)',
+                    transform: 'scale(1.1)',
+                  },
+                }}
+              >
+                {React.cloneElement(service.icon, {
+                  sx: { 
+                    fontSize: { xs: 30, sm: 35, md: 40 } 
+                  }
+                })}
+              </Box>
+              <Typography 
+                variant="h5" 
+                sx={{ 
+                  color: 'white', 
+                  fontWeight: 600, 
+                  mb: { xs: 1, sm: 1.5 },
+                  fontSize: { 
+                    xs: '1.1rem', 
+                    sm: '1.2rem', 
+                    md: '1.3rem' 
+                  },
+                }}
+              >
+                {service.title}
+              </Typography>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  color: 'rgba(255,255,255,0.6)',
+                  fontSize: { 
+                    xs: '0.8rem', 
+                    sm: '0.85rem', 
+                    md: '0.875rem' 
+                  },
+                  lineHeight: 1.6,
+                  maxWidth: { xs: '100%', sm: '280px' },
+                  mx: 'auto',
+                }}
+              >
+                {service.description}
+              </Typography>
+            </Paper>
+          </motion.div>
+        </Grid>
+      ))}
+    </Grid>
+  </Container>
+</Box>
       {/* Testimonials Section with Carousel */}
       <Box
         ref={testimonialsRef}

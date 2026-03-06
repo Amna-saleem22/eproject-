@@ -2,99 +2,87 @@ import mongoose from "mongoose";
 import Payment from "../models/Payment.js";
 import Booking from "../models/Booking.js";
 
+// ===============================
+// Helper validation functions
+// ===============================
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const isValidCardNumber = (num) => /^\d{16}$/.test(num.replace(/\s+/g, ""));
+const isValidExpiry = (exp) => /^(0[1-9]|1[0-2])\/\d{2}$/.test(exp);
+const isValidCvv = (cvv) => /^\d{3,4}$/.test(cvv);
+
+// ===============================
+// Make Payment
+// ===============================
 export const makePayment = async (req, res) => {
   try {
-    const {
+    const { bookingId, method, customerName, email, nameOnCard, cardNumber, expiry, cvv } = req.body;
+
+    // Booking validation
+    if (!mongoose.Types.ObjectId.isValid(bookingId))
+      return res.status(400).json({ success: false, message: "Invalid booking ID" });
+
+    const booking = await Booking.findById(bookingId);
+    if (!booking)
+      return res.status(404).json({ success: false, message: "Booking not found" });
+
+    // Customer info validation
+    if (!customerName || !email)
+      return res.status(400).json({ success: false, message: "Customer name and email required" });
+
+    if (!isValidEmail(email))
+      return res.status(400).json({ success: false, message: "Invalid email format" });
+
+    // Online payment validation
+    if (method === "Online") {
+      if (!nameOnCard || !cardNumber || !expiry || !cvv)
+        return res.status(400).json({ success: false, message: "Complete card details required" });
+      if (!isValidCardNumber(cardNumber))
+        return res.status(400).json({ success: false, message: "Invalid card number" });
+      if (!isValidExpiry(expiry))
+        return res.status(400).json({ success: false, message: "Invalid expiry date" });
+      if (!isValidCvv(cvv))
+        return res.status(400).json({ success: false, message: "Invalid CVV" });
+    }
+
+    // Create payment
+    const payment = await Payment.create({
       bookingId,
       method,
       customerName,
       email,
-      nameOnCard,
-      cardNumber,
-      expiry,
-    } = req.body;
-
-    if (!mongoose.Types.ObjectId.isValid(bookingId)) {
-      return res.status(400).json({ message: "Invalid booking ID" });
-    }
-
-    const booking = await Booking.findById(bookingId);
-
-    if (!booking) {
-      return res.status(404).json({ message: "Booking not found" });
-    }
-
-    // 🚫 DO NOT CHANGE BOOKING STATUS HERE
-
-    const payment = await Payment.create({
-      bookingId,
-      method,
-      customerName: method === "Online" ? customerName : null,
-      email: method === "Online" ? email : null,
-      nameOnCard: method === "Online" ? nameOnCard : null,
-      cardNumber: method === "Online" ? cardNumber : null,
-      expiry: method === "Online" ? expiry : null,
-      paymentStatus: "paid", // payment done
-      transactionId:
-        method === "Online" ? "TXN" + Date.now() : null,
+      nameOnCard: method === "Online" ? nameOnCard : undefined,
+      cardNumber: method === "Online" ? cardNumber : undefined,
+      expiry: method === "Online" ? expiry : undefined,
+      cvv: method === "Online" ? cvv : undefined,
+      amount: booking.totalAmount,
+      paymentStatus: "paid",
+      transactionId: "TXN" + Date.now(),
     });
 
-    res.status(201).json({
-      success: true,
-      message: "Payment successful",
-      payment,
-    });
+    res.status(201).json({ success: true, payment });
   } catch (error) {
-    console.error("Payment Error:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    console.error("Payment error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-
-
-/* ===============================
-   GET PAYMENT BY BOOKING ID
-================================ */
+// ===============================
+// Get Payment by Booking ID
+// ===============================
 export const getPaymentByBookingId = async (req, res) => {
   try {
     const { bookingId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(bookingId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid booking ID",
-      });
-    }
-
     const payment = await Payment.findOne({ bookingId });
-
-    if (!payment) {
-      return res.status(404).json({
-        success: false,
-        message: "Payment not found",
-      });
-    }
-
-    res.json({
-      success: true,
-      payment,
-    });
+    res.json({ success: true, payment });
   } catch (error) {
-    console.error("Fetch Payment Error:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    res.status(500).json({ message: error.message });
   }
 };
 
-
-
-
-
+// ===============================
+// Get All Payments for Admin
+// ===============================
 
 
 
@@ -110,7 +98,6 @@ export const getPaymentByBookingId = async (req, res) => {
 ================================ */
 export const getAllPayments = async (req, res) => {
   try {
-    // Optional: date filter
     const { fromDate, toDate } = req.query;
     let filter = {};
 
@@ -121,21 +108,34 @@ export const getAllPayments = async (req, res) => {
       };
     }
 
-    // Fetch all payments
+    // Fetch payments and populate booking info
     const payments = await Payment.find(filter)
-      .sort({ createdAt: -1 }) // latest first
-      .populate("bookingId", "room customerName checkIn checkOut"); // optional: booking info
+      .sort({ createdAt: -1 })
+      .populate("bookingId", "guestName roomType checkInDate checkOutDate totalAmount");
 
-    // Total revenue calculation
-    const totalRevenue = payments
+    // Map payments to ensure all fields exist
+    const paymentsMapped = payments.map(p => ({
+      _id: p._id,
+      bookingId: p.bookingId?._id || p.bookingId || "N/A", // Always show booking ID
+      customerName: p.customerName || p.bookingId?.guestName || "N/A",
+      amount: p.amount || p.bookingId?.totalAmount || 0,
+      method: p.method || "Cash",
+      paymentStatus: p.paymentStatus || "paid",
+      transactionId: p.transactionId || (p.method === "Online" ? "TXN" + Date.now() : "CASH-" + Date.now()),
+      createdAt: p.createdAt,
+      bookingInfo: p.bookingId || null, // full booking object
+    }));
+
+    // Calculate total revenue
+    const totalRevenue = paymentsMapped
       .filter(p => p.paymentStatus === "paid")
-      .reduce((sum, p) => sum + p.amount, 0); // make sure Payment model has amount field
+      .reduce((sum, p) => sum + (p.amount || 0), 0);
 
     res.status(200).json({
       success: true,
-      count: payments.length,
+      count: paymentsMapped.length,
       totalRevenue,
-      payments,
+      payments: paymentsMapped,
     });
   } catch (error) {
     console.error("Fetch All Payments Error:", error);
