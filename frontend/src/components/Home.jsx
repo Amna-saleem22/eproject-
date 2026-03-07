@@ -1,4 +1,5 @@
-import React, { useRef } from 'react';
+import React, { useRef ,useState, useEffect} from 'react';
+import { Link } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -14,6 +15,7 @@ import {
   IconButton,
   Paper,
   Stack,
+ 
 } from '@mui/material';
 import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -50,35 +52,7 @@ const Home = () => {
   const isTestimonialsInView = useInView(testimonialsRef, { once: true, amount: 0.3 });
   const isCtaInView = useInView(ctaRef, { once: true, amount: 0.3 });
 
-  const featuredRooms = [
-    {
-      id: 1,
-      name: 'Presidential Suite',
-      price: 2500,
-      image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80',
-      rating: 5,
-      reviews: 128,
-      features: ['Ocean View', 'Private Pool', 'Butler Service', '850 sq ft'],
-    },
-    {
-      id: 2,
-      name: 'Royal Penthouse',
-      price: 1800,
-      image: 'https://images.unsplash.com/photo-1590490360182-c33d5773342b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80',
-      rating: 5,
-      reviews: 96,
-      features: ['City View', 'Jacuzzi', 'Smart Home', '700 sq ft'],
-    },
-    {
-      id: 3,
-      name: 'Deluxe Suite',
-      price: 1200,
-      image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80',
-      rating: 4.5,
-      reviews: 156,
-      features: ['Garden View', 'Rain Shower', 'Mini Bar', '550 sq ft'],
-    },
-  ];
+  
 
   const services = [
     { 
@@ -207,6 +181,329 @@ const Home = () => {
     }
   };
 
+
+
+  const theme = {
+  // Core Brand Colors
+  primaryLight: "#0D47A1",
+  primaryMain: "#1565C0",
+  primaryDark: "#0A3D91",
+
+  // Background Colors
+  bgMain: "#0A0A0A",
+  bgSecondary: "#111111",
+  footerGradient: "linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)",
+  glassEffect: "rgba(255, 255, 255, 0.05)",
+
+  // Text Colors
+  textPrimary: "#FFFFFF",
+  textSecondary: "rgba(255, 255, 255, 0.5)",
+  textMuted: "rgba(255, 255, 255, 0.5)",
+
+  // Border Colors
+  borderLight: "rgba(255, 255, 255, 0.08)",
+  borderStrong: "rgba(13, 71, 161, 0.4)",
+
+  // Navbar
+  navbarBg: "rgba(10, 10, 10, 0.9)",
+  navbarScrolled: "rgba(10, 10, 10, 0.98)",
+  backdropBlur: "blur(10px)",
+  navbarBorder: "1px solid rgba(13, 71, 161, 0.4)",
+  hoverColor: "#0D47A1",
+  transition: "0.3s ease",
+
+  // Mobile Drawer
+  drawerBg: "#111111",
+  activeBg: "rgba(13, 71, 161, 0.15)",
+  activeIcon: "#0D47A1",
+
+  // Footer Effects
+  radialGlow: "radial-gradient(circle at 0% 50%, #0d47a1 0%, transparent 50%)",
+  particleColor: "rgba(13, 71, 161, 0.1)",
+  bottomLine: "linear-gradient(90deg, transparent, #0D47A1, transparent)",
+
+  // Newsletter
+  newsletterContainer: "rgba(255, 255, 255, 0.05)",
+  newsletterBorder: "1px solid rgba(13, 71, 161, 0.4)",
+  newsletterRadius: "12px",
+  newsletterButton: "#0D47A1",
+};
+
+// Sample luxury hotel images (high‑quality placeholders)
+const galleryImages = [
+  {
+    id: 1,
+    src: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&auto=format",
+    alt: "Luxury hotel lobby with chandelier",
+    category: "Lobby",
+  },
+  {
+    id: 2,
+    src: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&auto=format",
+    alt: "Elegant hotel room with city view",
+    category: "Room",
+  },
+  {
+    id: 3,
+    src: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&auto=format",
+    alt: "Infinity swimming pool overlooking ocean",
+    category: "Pool",
+  },
+  {
+    id: 4,
+    src: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&auto=format",
+    alt: "Fine dining restaurant with white tablecloths",
+    category: "Restaurant",
+  },
+  {
+    id: 5,
+    src: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&auto=format",
+    alt: "Modern hotel exterior at night",
+    category: "Exterior",
+  },
+  {
+    id: 6,
+    src: "https://images.unsplash.com/photo-1765745518752-68a289300789?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8THV4dXJ5JTIwc3BhJTIwd2l0aCUyMG1hcmJsZSUyMGFuZCUyMGNhbmRsZXN8ZW58MHx8MHx8fDA%3D",
+    alt: "Luxury spa with marble and candles",
+    category: "Spa",
+  },
+  {
+    id: 7,
+    src: "https://images.unsplash.com/photo-1561501878-aabd62634533?w=800&auto=format",
+    alt: "Grand ballroom with crystal chandeliers",
+    category: "Events",
+  },
+  {
+    id: 8,
+    src: "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=800&auto=format",
+    alt: "Rooftop bar with panoramic view",
+    category: "Bar",
+  },
+   {
+    id: 8,
+    src: "https://images.unsplash.com/photo-1765122670586-b5f22d95c17f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8THV4dXJ5JTIwaG90ZWwlMjBlbnRyYW5jZXxlbnwwfHwwfHx8MA%3D%3D",
+    alt: "Rooftop bar with panoramic view",
+    category: "Bar",
+  },
+];
+
+  const sectionRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.2, rootMargin: '50px' }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, []);
+
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  // Open modal with the clicked image
+  const openLightbox = (image) => {
+    setSelectedImage(image);
+  };
+
+  // Close modal
+  const closeLightbox = () => {
+    setSelectedImage(null);
+  };
+
+  // Styles object (inline CSS)
+  const styles = {
+    gallerySection: {
+      backgroundColor: theme.bgMain,
+      padding: "80px 24px",
+      fontFamily: "'Inter', 'Helvetica Neue', sans-serif",
+      color: theme.textPrimary,
+    },
+    container: {
+      maxWidth: "1280px",
+      margin: "0 auto",
+    },
+    header: {
+      textAlign: "center",
+      marginBottom: "56px",
+    },
+    title: {
+      fontSize: "clamp(2rem, 5vw, 3rem)",
+      fontWeight: "300",
+      letterSpacing: "2px",
+      margin: "0 0 12px 0",
+      textTransform: "uppercase",
+      color: theme.textPrimary,
+    },
+    titleAccent: {
+      color: theme.primaryLight,
+      fontWeight: "400",
+    },
+    subtitle: {
+      fontSize: "clamp(1rem, 2vw, 1.2rem)",
+      color: theme.textSecondary,
+      letterSpacing: "1px",
+      fontWeight: "300",
+      borderBottom: `1px solid ${theme.borderStrong}`,
+      display: "inline-block",
+      paddingBottom: "8px",
+    },
+    grid: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+      gap: "24px",
+      gridAutoRows: "280px",
+      gridAutoFlow: "row dense",
+    },
+    // Masonry-like effect: make some spans larger
+    gridItem: (index) => {
+      const largeSpans = [1, 4, 6]; // indices for larger items (just for visual interest)
+      const isLarge = largeSpans.includes(index);
+      return {
+        gridRow: isLarge ? "span 2" : "span 1",
+        gridColumn: isLarge ? "span 1" : "span 1",
+        position: "relative",
+        overflow: "hidden",
+        borderRadius: "12px",
+        cursor: "pointer",
+        boxShadow: "0 10px 30px -10px rgba(0, 0, 0, 0.5)",
+        border: `1px solid ${theme.borderLight}`,
+        transition: `all ${theme.transition}`,
+        backgroundColor: theme.bgSecondary, // fallback while loading
+      };
+    },
+    image: {
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+      display: "block",
+      transition: `transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)`,
+    },
+    overlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: "linear-gradient(180deg, rgba(10,10,10,0.2) 0%, rgba(13,71,161,0.4) 100%)",
+      display: "flex",
+      alignItems: "flex-end",
+      justifyContent: "flex-start",
+      padding: "20px",
+      opacity: 0,
+      transition: `opacity ${theme.transition}`,
+      color: theme.textPrimary,
+    },
+    overlayContent: {
+      transform: "translateY(10px)",
+      transition: `transform ${theme.transition}`,
+    },
+    category: {
+      fontSize: "0.8rem",
+      textTransform: "uppercase",
+      letterSpacing: "2px",
+      color: theme.primaryLight,
+      marginBottom: "4px",
+    },
+    imageAlt: {
+      fontSize: "1.1rem",
+      fontWeight: "400",
+      margin: 0,
+      textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+    },
+    // Hover effects will be applied via pseudo-classes in JS/React using onMouseEnter/Leave,
+    // but for simplicity we'll use a styled component approach with inline hover simulation? 
+    // Since pure inline styles don't support :hover, we use a wrapper div with class or inline hover via state.
+    // For brevity, I'll add a style block inside component via a <style> tag (dynamic CSS) to handle hover.
+    // Alternatively, we can manage hover with state, but that's too many states. 
+    // Best: include a tiny style tag in the component for hover effects.
+    // I'll add a <style> element for the hover rules to keep it self‑contained.
+    
+    // Lightbox (modal) styles
+    lightboxOverlay: {
+      position: "fixed",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      backgroundColor: "rgba(10, 10, 10, 0.98)",
+      backdropFilter: "blur(10px)",
+      zIndex: 9999,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "24px",
+      boxSizing: "border-box",
+      cursor: "zoom-out",
+    },
+    lightboxContent: {
+      maxWidth: "1200px",
+      maxHeight: "90vh",
+      position: "relative",
+      animation: "fadeIn 0.3s ease",
+      cursor: "default",
+    },
+    lightboxImage: {
+      width: "100%",
+      height: "auto",
+      maxHeight: "80vh",
+      objectFit: "contain",
+      borderRadius: "12px",
+      border: `1px solid ${theme.borderStrong}`,
+      boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
+    },
+    lightboxInfo: {
+      position: "absolute",
+      bottom: "-40px",
+      left: "0",
+      right: "0",
+      textAlign: "center",
+      color: theme.textSecondary,
+      fontSize: "0.9rem",
+      letterSpacing: "1px",
+    },
+    closeButton: {
+      position: "absolute",
+      top: "-40px",
+      right: "0",
+      background: "none",
+      border: "none",
+      color: theme.textPrimary,
+      fontSize: "2rem",
+      cursor: "pointer",
+      padding: "8px 16px",
+      transition: `color ${theme.transition}`,
+      lineHeight: 1,
+    },
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Inline media queries and hover styles via style tag
+  };
+
   return (
     <Box sx={{ overflow: 'hidden' }}>
       {/* Hero Section */}
@@ -332,25 +629,42 @@ const Home = () => {
 
                     <motion.div whileHover="hover" variants={scaleOnHover}>
                       <Button
-                        variant="outlined"
-                        size="large"
-                        sx={{
-                          borderColor: COLORS.primaryLight,
-                          color: 'white',
-                          fontSize: '1.0625rem',
-                          py: 1.5,
-                          px: 4,
-                          borderRadius: 2,
-                          borderWidth: 2,
-                          '&:hover': {
-                            borderColor: COLORS.primaryDark,
-                            borderWidth: 2,
-                            backgroundColor: 'rgba(13,71,161,0.1)',
-                          },
-                        }}
-                      >
-                        Explore Rooms
-                      </Button>
+    component={Link}
+    to="/rooms"
+    variant="text"
+    endIcon={<ArrowForwardIcon />}
+    sx={{
+      color: COLORS.primaryLight,
+      fontSize: { xs: "1rem", sm: "1.1rem", md: "1.2rem" },
+      py: { xs: 1.5, sm: 2 },
+      px: { xs: 3, sm: 4 },
+      position: "relative",
+      textTransform: "none",
+
+      "&::after": {
+        content: '""',
+        position: "absolute",
+        bottom: 0,
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: 0,
+        height: "2px",
+        background: COLORS.primaryLight,
+        transition: "width 0.3s ease",
+      },
+
+      "&:hover::after": {
+        width: "80%",
+      },
+
+      "&:hover": {
+        backgroundColor: "transparent",
+        color: COLORS.primaryLight,
+      },
+    }}
+  >
+    Explore All Luxury Rooms
+  </Button>
                     </motion.div>
                   </Stack>
                 </motion.div>
@@ -393,6 +707,7 @@ const Home = () => {
         </motion.div>
       </Box>
 
+ {/* Hero Section end */}
 
 
 
@@ -400,437 +715,377 @@ const Home = () => {
 
 
 
+{/* about Section */}
+     
+       <style>{`
+        /* UNIQUE CLASS NAME - premium-hotel-about */
+        .premium-hotel-about {
+          background-color: #0a0a0a;
+          padding: 6rem 2rem;
+          font-family: 'Inter', 'Helvetica Neue', sans-serif;
+          color: #ffffff;
+          position: relative;
+          overflow: hidden;
+        }
 
+        .premium-hotel-about::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: radial-gradient(circle at 0% 50%, rgba(13,71,161,0.15) 0%, transparent 50%);
+          pointer-events: none;
+        }
 
+        .premium-hotel-container {
+          max-width: 1280px;
+          margin: 0 auto;
+          position: relative;
+          z-index: 2;
+        }
 
-{/* Featured Rooms Section - Redesigned */}
-<Box
-  ref={featuredRef}
-  component={motion.section}
-  initial="hidden"
-  animate={isFeaturedInView ? "visible" : "hidden"}
-  variants={staggerContainer}
-  sx={{
-    py: { xs: 8, sm: 10, md: 12, lg: 15 },
-    px: { xs: 2, sm: 3, md: 4, lg: 6 },
-    backgroundColor: COLORS.background,
-    position: 'relative',
-    background: 'linear-gradient(180deg, #0a0a0a 0%, #141414 100%)',
-  }}
->
-  {/* Decorative Elements */}
-  <Box
-    sx={{
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      height: '1px',
-      background: 'linear-gradient(90deg, transparent, rgba(25,118,210,0.3), transparent)',
-    }}
-  />
-  
-  <Container 
-    maxWidth={CONTAINER.wide}
-    sx={{
-      px: { xs: 2, sm: 3, md: 4 },
-      position: 'relative',
-      zIndex: 2,
-    }}
-  >
-    {/* Section Header with Modern Design */}
-    <motion.div variants={fadeInUp}>
-      <Box sx={{ textAlign: 'center', mb: { xs: 6, sm: 8, md: 10 } }}>
-        <Typography
-          variant="overline"
-          sx={{
-            color: COLORS.primaryLight,
-            fontSize: { xs: '0.875rem', sm: '1rem' },
-            letterSpacing: { xs: 4, sm: 6 },
-            mb: 2,
-            display: 'block',
-            textTransform: 'uppercase',
-            fontWeight: 500,
-          }}
-        >
-          Luxury Collection
-        </Typography>
+        .premium-hotel-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 4rem;
+          align-items: center;
+        }
+
+        /* Left Column - Image */
+        .premium-hotel-image-wrapper {
+          position: relative;
+          border-radius: 24px;
+          overflow: hidden;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+          border: 1px solid rgba(13, 71, 161, 0.3);
+          opacity: 0;
+          transform: translateX(-30px);
+          transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
+                      transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .premium-hotel-image-wrapper.visible {
+          opacity: 1;
+          transform: translateX(0);
+        }
+
+        .premium-hotel-image {
+          width: 100%;
+          height: 600px;
+          object-fit: cover;
+          display: block;
+          transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .premium-hotel-image-wrapper:hover .premium-hotel-image {
+          transform: scale(1.05);
+        }
+
+        /* Right Column - Content */
+        .premium-hotel-content {
+          opacity: 0;
+          transform: translateX(30px);
+          transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
+                      transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+          transition-delay: 0.2s;
+        }
+
+        .premium-hotel-content.visible {
+          opacity: 1;
+          transform: translateX(0);
+        }
+
+        .premium-hotel-heading {
+          font-size: clamp(2rem, 4vw, 3rem);
+          font-weight: 300;
+          letter-spacing: 1px;
+          margin: 0 0 0.5rem 0;
+          color: #ffffff;
+          line-height: 1.2;
+        }
+
+        .premium-hotel-heading span {
+          color: #0d47a1;
+          font-weight: 400;
+          display: block;
+          margin-top: 0.5rem;
+        }
+
+        .premium-hotel-description {
+          font-size: 1.125rem;
+          line-height: 1.8;
+          color: rgba(255, 255, 255, 0.7);
+          margin: 2rem 0 2rem 0;
+          max-width: 500px;
+        }
+
+        .premium-hotel-description p {
+          margin-bottom: 1.5rem;
+        }
+
+        .premium-hotel-description p:last-child {
+          margin-bottom: 0;
+        }
+
+        .premium-hotel-button {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: transparent;
+          color: #ffffff;
+          border: 2px solid #0d47a1;
+          border-radius: 50px;
+          padding: 1rem 2.5rem;
+          font-size: 1rem;
+          font-weight: 500;
+          letter-spacing: 1.5px;
+          text-transform: uppercase;
+          text-decoration: none;
+          cursor: pointer;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          position: relative;
+          overflow: hidden;
+          z-index: 1;
+        }
+
+        .premium-hotel-button::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: #0d47a1;
+          transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          z-index: -1;
+        }
+
+        .premium-hotel-button:hover {
+          color: #ffffff;
+          transform: translateY(-2px);
+          box-shadow: 0 10px 30px rgba(13, 71, 161, 0.3);
+        }
+
+        .premium-hotel-button:hover::before {
+          left: 0;
+        }
+
+        /* Decorative Elements */
+        .premium-hotel-accent {
+          position: absolute;
+          bottom: 0;
+          right: 0;
+          width: 300px;
+          height: 300px;
+          background: radial-gradient(circle at 100% 100%, rgba(13,71,161,0.1) 0%, transparent 70%);
+          pointer-events: none;
+          z-index: 1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+          .premium-hotel-image {
+            height: 500px;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .premium-hotel-about {
+            padding: 4rem 1.5rem;
+          }
+
+          .premium-hotel-grid {
+            grid-template-columns: 1fr;
+            gap: 2.5rem;
+          }
+
+          .premium-hotel-image-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+          }
+
+          .premium-hotel-image {
+            height: 400px;
+          }
+
+          .premium-hotel-content {
+            text-align: center;
+          }
+
+          .premium-hotel-description {
+            margin-left: auto;
+            margin-right: auto;
+          }
+
+          .premium-hotel-button {
+            margin: 0 auto;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .premium-hotel-about {
+            padding: 3rem 1rem;
+          }
+
+          .premium-hotel-image {
+            height: 300px;
+          }
+
+          .premium-hotel-heading {
+            font-size: 1.75rem;
+          }
+
+          .premium-hotel-description {
+            font-size: 1rem;
+          }
+
+          .premium-hotel-button {
+            padding: 0.875rem 2rem;
+            font-size: 0.9rem;
+          }
+        }
+
+        /* Smooth scrolling for the whole page */
+        html {
+          scroll-behavior: smooth;
+        }
+      `}</style>
+
+      <section ref={sectionRef} className="premium-hotel-about">
+        <div className="premium-hotel-container">
+          <div className="premium-hotel-grid">
+            {/* Left Column - Image */}
+            <div className={`premium-hotel-image-wrapper ${isVisible ? 'visible' : ''}`}>
+              <img
+                src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80"
+                alt="Luxury hotel exterior with infinity pool"
+                className="premium-hotel-image"
+              />
+            </div>
+
+            {/* Right Column - Content */}
+            <div className={`premium-hotel-content ${isVisible ? 'visible' : ''}`}>
+              <h2 className="premium-hotel-heading">
+                About Our
+                <span>Luxury Hotel</span>
+              </h2>
+              
+              <div className="premium-hotel-description">
+                <p>
+                  Step into a world of timeless elegance where every detail has been 
+                  meticulously curated to exceed the expectations of the most discerning 
+                  travelers. Our sanctuary offers an intimate escape from the ordinary.
+                </p>
+                <p>
+                  From the moment you arrive, experience unparalleled comfort and 
+                  personalized service that anticipates your every need. Each space 
+                  tells a story of sophisticated design and uncompromising luxury.
+                </p>
+              </div>
+
+              <button className="premium-hotel-button">
+             About Our Hotel
+              </button>
+            </div>
+          </div>
+        </div>
         
-        <Typography
-          variant="h2"
-          sx={{
-            color: 'white',
-            mb: { xs: 2, sm: 3 },
-            fontSize: { 
-              xs: '2.2rem', 
-              sm: '2.8rem', 
-              md: '3.2rem', 
-              lg: '3.8rem' 
-            },
-            fontWeight: 700,
-            lineHeight: 1.2,
-            position: 'relative',
-            display: 'inline-block',
-            '&::after': {
-              content: '""',
-              position: 'absolute',
-              bottom: -10,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: { xs: 60, sm: 80, md: 100 },
-              height: 3,
-              background: `linear-gradient(90deg, ${COLORS.primaryLight}, ${COLORS.primaryDark})`,
-              borderRadius: 2,
-            },
-          }}
-        >
-          Featured Luxury Rooms
-        </Typography>
-        
-        <Typography
-          variant="body1"
-          sx={{
-            color: 'rgba(255,255,255,0.7)',
-            maxWidth: { xs: '100%', sm: '90%', md: '700px' },
-            mx: 'auto',
-            fontSize: { 
-              xs: '0.95rem', 
-              sm: '1.05rem', 
-              md: '1.1rem' 
-            },
-            px: { xs: 2, sm: 3 },
-            lineHeight: 1.8,
-            mt: { xs: 3, sm: 4 },
-          }}
-        >
-          Discover our most exclusive accommodations, where every detail has been精心 crafted to provide an unforgettable experience of luxury and comfort
-        </Typography>
-      </Box>
-    </motion.div>
+        {/* Decorative accent */}
+        <div className="premium-hotel-accent"></div>
+      </section>
+{/* about Section end */  }
 
-    {/* Room Cards Grid */}
-    <Grid 
-      container 
-      spacing={{ xs: 3, sm: 4, md: 4, lg: 5 }}
-      sx={{
-        justifyContent: 'center',
-      }}
-    >
-      {featuredRooms.map((room, index) => (
-        <Grid 
-          item 
-          xs={12} 
-          sm={6} 
-          lg={4} 
-          key={room.id}
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-          }}
-        >
-          <motion.div
-            variants={fadeInUp}
-            whileHover="hover"
-            initial="initial"
-            style={{
-              width: '100%',
-              height: '100%',
-            }}
-          >
-            <Card
-              sx={{
-                height: '100%',
-                backgroundColor: '#1E1E1E',
-                borderRadius: { xs: 4, sm: 5, md: 6 },
-                overflow: 'hidden',
-                position: 'relative',
-                border: '1px solid rgba(255,255,255,0.05)',
-                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
-                '&:hover': {
-                  border: `1px solid ${COLORS.primaryLight}40`,
-                  transform: { md: 'translateY(-12px)' },
-                  boxShadow: `0 30px 60px ${COLORS.primaryLight}20`,
-                },
-              }}
+
+
+
+{/* Featured gallerySection */}
+
+
+
+ <section style={styles.gallerySection}>
+      {/* Inject hover styles via style tag (self-contained) */}
+      <style>
+        {`
+          .gallery-item:hover img {
+            transform: scale(1.08);
+          }
+          .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+          }
+          .gallery-item:hover .overlay-content {
+            transform: translateY(0);
+          }
+          .lightbox-close:hover {
+            color: ${theme.primaryLight} !important;
+          }
+          @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+          }
+        `}
+      </style>
+
+      <div style={styles.container}>
+        {/* Section Header */}
+        <div style={styles.header}>
+          <h2 style={styles.title}>
+            Hotel <span style={styles.titleAccent}>Gallery</span>
+          </h2>
+          <p style={styles.subtitle}>Explore Our Luxury Spaces</p>
+        </div>
+
+        {/* Gallery Grid */}
+        <div style={styles.grid}>
+          {galleryImages.map((image, index) => (
+            <div
+              key={image.id}
+              className="gallery-item"
+              style={styles.gridItem(index)}
+              onClick={() => openLightbox(image)}
             >
-              {/* Image Container with Overlay */}
-              <Box sx={{ 
-                position: 'relative', 
-                overflow: 'hidden',
-                aspectRatio: '4/3',
-              }}>
-                <CardMedia
-                  component="img"
-                  image={room.image}
-                  alt={room.name}
-                  sx={{
-                    transition: 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-                    objectFit: 'cover',
-                    width: '100%',
-                    height: '100%',
-                    '&:hover': {
-                      transform: 'scale(1.15)',
-                    },
-                  }}
-                />
-                
-                {/* Gradient Overlay */}
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.8) 100%)',
-                    zIndex: 1,
-                  }}
-                />
-                
-                {/* Price Tag */}
-                <Chip
-                  label={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <Typography component="span" sx={{ fontSize: '0.8rem', opacity: 0.9 }}>$</Typography>
-                      <Typography component="span" sx={{ fontSize: '1.1rem', fontWeight: 700 }}>{room.price}</Typography>
-                      <Typography component="span" sx={{ fontSize: '0.7rem', opacity: 0.7 }}>/night</Typography>
-                    </Box>
-                  }
-                  sx={{
-                    position: 'absolute',
-                    top: { xs: 16, sm: 20 },
-                    right: { xs: 16, sm: 20 },
-                    backgroundColor: 'rgba(25,118,210,0.95)',
-                    color: 'white',
-                    fontWeight: 600,
-                    fontSize: { xs: '0.9rem', sm: '1rem' },
-                    px: { xs: 1.5, sm: 2 },
-                    py: { xs: 1, sm: 1.2 },
-                    height: 'auto',
-                    borderRadius: 3,
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    backdropFilter: 'blur(5px)',
-                    zIndex: 3,
-                    boxShadow: '0 4px 15px rgba(25,118,210,0.3)',
-                    '& .MuiChip-label': {
-                      px: { xs: 1, sm: 1.5 },
-                    },
-                  }}
-                />
+              <img
+                src={image.src}
+                alt={image.alt}
+                style={styles.image}
+                loading="lazy"
+              />
+              <div className="gallery-overlay" style={styles.overlay}>
+                <div className="overlay-content" style={styles.overlayContent}>
+                  <div style={styles.category}>{image.category}</div>
+                  <p style={styles.imageAlt}>{image.alt}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
-                {/* Room Name Overlay */}
-                <Typography
-                  variant="h5"
-                  sx={{
-                    position: 'absolute',
-                    bottom: { xs: 16, sm: 20 },
-                    left: { xs: 16, sm: 20 },
-                    color: 'white',
-                    fontWeight: 600,
-                    fontSize: { xs: '1.3rem', sm: '1.5rem', md: '1.6rem' },
-                    zIndex: 3,
-                    textShadow: '0 2px 10px rgba(0,0,0,0.3)',
-                  }}
-                >
-                  {room.name}
-                </Typography>
-              </Box>
-
-              <CardContent sx={{ 
-                p: { xs: 2.5, sm: 3, md: 3.5 },
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                background: '#1E1E1E',
-              }}>
-                {/* Rating and Reviews */}
-                <Box sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'space-between',
-                  mb: { xs: 2, sm: 2.5 },
-                  flexWrap: 'wrap',
-                  gap: 1,
-                }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Rating 
-                      value={room.rating} 
-                      readOnly 
-                      precision={0.5}
-                      sx={{ 
-                        color: COLORS.primaryLight,
-                        '& .MuiRating-iconFilled': {
-                          color: COLORS.primaryLight,
-                        },
-                        fontSize: { xs: '1.1rem', sm: '1.2rem' },
-                      }} 
-                    />
-                    <Typography 
-                      variant="body2" 
-                      sx={{ 
-                        color: 'rgba(255,255,255,0.5)',
-                        fontWeight: 500,
-                        fontSize: { xs: '0.8rem', sm: '0.9rem' },
-                      }}
-                    >
-                      ({room.reviews} reviews)
-                    </Typography>
-                  </Box>
-                  
-                  <Typography 
-                    variant="body2" 
-                    sx={{ 
-                      color: COLORS.primaryLight,
-                      fontWeight: 600,
-                      fontSize: { xs: '0.8rem', sm: '0.9rem' },
-                      background: 'rgba(25,118,210,0.1)',
-                      px: 1.5,
-                      py: 0.5,
-                      borderRadius: 2,
-                    }}
-                  >
-                    Best Seller
-                  </Typography>
-                </Box>
-
-                {/* Room Features */}
-                <Box sx={{ 
-                  display: 'flex', 
-                  gap: { xs: 0.8, sm: 1 }, 
-                  flexWrap: 'wrap', 
-                  mb: { xs: 2.5, sm: 3 },
-                }}>
-                  {room.features.map((feature, i) => (
-                    <Chip
-                      key={i}
-                      label={feature}
-                      size="small"
-                      sx={{
-                        backgroundColor: 'rgba(255,255,255,0.05)',
-                        color: 'rgba(255,255,255,0.8)',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' },
-                        height: { xs: 28, sm: 32 },
-                        borderRadius: 2,
-                        transition: 'all 0.3s ease',
-                        '&:hover': {
-                          backgroundColor: 'rgba(25,118,210,0.15)',
-                          borderColor: COLORS.primaryLight,
-                          color: COLORS.primaryLight,
-                        },
-                        '& .MuiChip-label': {
-                          px: { xs: 1.2, sm: 1.5 },
-                        },
-                      }}
-                    />
-                  ))}
-                </Box>
-
-                {/* Action Buttons */}
-                <Box sx={{ 
-                  display: 'flex', 
-                  gap: 2,
-                  mt: 'auto',
-                  flexDirection: { xs: 'column', sm: 'row' },
-                }}>
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    endIcon={<ArrowForwardIcon />}
-                    sx={{
-                      background: `linear-gradient(135deg, ${COLORS.primaryLight} 0%, ${COLORS.primaryDark} 100%)`,
-                      color: 'white',
-                      fontSize: { xs: '0.9rem', sm: '0.95rem' },
-                      py: { xs: 1.2, sm: 1.3 },
-                      px: { xs: 2, sm: 2.5 },
-                      borderRadius: 3,
-                      textTransform: 'none',
-                      fontWeight: 600,
-                      boxShadow: `0 8px 20px ${COLORS.primaryLight}30`,
-                      '&:hover': {
-                        background: `linear-gradient(135deg, ${COLORS.primaryDark} 0%, ${COLORS.primary} 100%)`,
-                        boxShadow: `0 12px 30px ${COLORS.primaryLight}50`,
-                      },
-                    }}
-                  >
-                    Book Now
-                  </Button>
-                  
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    sx={{
-                      borderColor: 'rgba(255,255,255,0.2)',
-                      color: 'white',
-                      fontSize: { xs: '0.9rem', sm: '0.95rem' },
-                      py: { xs: 1.2, sm: 1.3 },
-                      px: { xs: 2, sm: 2.5 },
-                      borderRadius: 3,
-                      textTransform: 'none',
-                      fontWeight: 500,
-                      borderWidth: 1.5,
-                      '&:hover': {
-                        borderColor: COLORS.primaryLight,
-                        backgroundColor: 'rgba(25,118,210,0.1)',
-                      },
-                    }}
-                  >
-                    Details
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </Grid>
-      ))}
-    </Grid>
-
-    {/* View All Button */}
-    <motion.div
-      variants={fadeInUp}
-      style={{ textAlign: 'center' }}
-    >
-      <Button
-        variant="text"
-        endIcon={<ArrowForwardIcon />}
-        sx={{
-          color: COLORS.primaryLight,
-          fontSize: { xs: '1rem', sm: '1.1rem', md: '1.2rem' },
-          mt: { xs: 6, sm: 8, md: 10 },
-          py: { xs: 1.5, sm: 2 },
-          px: { xs: 3, sm: 4 },
-          position: 'relative',
-          '&::after': {
-            content: '""',
-            position: 'absolute',
-            bottom: 0,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: 0,
-            height: 2,
-            background: COLORS.primaryLight,
-            transition: 'width 0.3s ease',
-          },
-          '&:hover::after': {
-            width: '80%',
-          },
-          '&:hover': {
-            backgroundColor: 'transparent',
-            color: COLORS.primaryLight,
-          },
-        }}
-      >
-        Explore All Luxury Rooms
-      </Button>
-    </motion.div>
-  </Container>
-</Box>
-
-
+      {/* Lightbox Modal */}
+      {selectedImage && (
+        <div style={styles.lightboxOverlay} onClick={closeLightbox}>
+          <div style={styles.lightboxContent} onClick={(e) => e.stopPropagation()}>
+            <button
+              style={styles.closeButton}
+              onClick={closeLightbox}
+              className="lightbox-close"
+            >
+              ✕
+            </button>
+            <img
+              src={selectedImage.src}
+              alt={selectedImage.alt}
+              style={styles.lightboxImage}
+            />
+            <div style={styles.lightboxInfo}>
+              <span>{selectedImage.alt}</span> &nbsp; | &nbsp; <span style={{ color: theme.primaryLight }}>{selectedImage.category}</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+{/* Featured end gallerySection */}
 
 
 
@@ -1028,6 +1283,10 @@ const Home = () => {
     </Grid>
   </Container>
 </Box>
+{/* Services Section end*/}
+
+
+
       {/* Testimonials Section with Carousel */}
       <Box
         ref={testimonialsRef}
@@ -1208,76 +1467,15 @@ const Home = () => {
           </Box>
         </Container>
       </Box>
+  {/* Testimonials Section with Carousel  end*/}
+
+
+
+
+
 
       {/* Call to Action Section */}
-      <Box
-        ref={ctaRef}
-        component={motion.section}
-        initial="hidden"
-        animate={isCtaInView ? "visible" : "hidden"}
-        variants={fadeIn}
-        sx={{
-          py: SPACING.sectionY,
-          background: `linear-gradient(135deg, rgba(13,71,161,0.9) 0%, ${COLORS.background} 100%), url("https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80")`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundAttachment: 'fixed',
-        }}
-      >
-        <Container maxWidth={CONTAINER.form}>
-          <motion.div variants={fadeInUp} style={{ textAlign: 'center' }}>
-            <Typography
-              variant="h2"
-              sx={{
-                color: COLORS.text,
-                mb: 3,
-                fontSize: { xs: '2rem', md: '3.5rem' },
-              }}
-            >
-              Ready for an
-              <Typography component="span" sx={{ color: COLORS.primaryLight, display: 'block' }}>
-                Unforgettable Experience?
-              </Typography>
-            </Typography>
-            <Typography
-              variant="h6"
-              sx={{
-                color: 'rgba(255,255,255,0.9)',
-                mb: 4,
-                maxWidth: '600px',
-                mx: 'auto',
-              }}
-            >
-              Book your stay now and enjoy exclusive benefits including spa credits, 
-              complimentary breakfast, and late checkout.
-            </Typography>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                variant="contained"
-                size="large"
-                sx={{
-                  background: `linear-gradient(135deg, ${COLORS.primaryLight} 30%, ${COLORS.primaryDark} 90%)`,
-                  color: 'white',
-                  fontSize: '1.0625rem',
-                  py: 1.5,
-                  px: 4,
-                  borderRadius: 2,
-                  boxShadow: '0 8px 30px rgba(13,71,161,0.4)',
-                  '&:hover': {
-                    background: `linear-gradient(135deg, ${COLORS.primaryDark} 30%, ${COLORS.primary} 90%)`,
-                    boxShadow: '0 15px 40px rgba(13,71,161,0.6)',
-                  },
-                }}
-              >
-                Book Your Luxury Stay
-              </Button>
-            </motion.div>
-          </motion.div>
-        </Container>
-      </Box>
+     
 
       {/* CSS Animations */}
       <style jsx>{`

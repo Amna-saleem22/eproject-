@@ -205,6 +205,7 @@ import User from "./models/User.js";
 import Message from "./models/Message.js";
 
 // Routes
+import contactRoutes from "./routes/contactRoutes.js";  
 import authRoutes from "./routes/authRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
@@ -374,6 +375,8 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/staff", staffRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/services", serviceRoutes);
+
+app.use("/api/contact", contactRoutes);
 app.use("/api/feedbacks", feedbackRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/payments", paymentRoutes);

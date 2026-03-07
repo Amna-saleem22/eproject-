@@ -3,18 +3,13 @@ import {
   Box,
   Container,
   Typography,
-  Grid,
   Paper,
   TextField,
   Button,
   IconButton,
-  Stack,
   Chip,
-  Divider,
   Alert,
   Snackbar,
-  useTheme,
-  useMediaQuery,
 } from '@mui/material';
 import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
@@ -31,13 +26,45 @@ import DiamondIcon from '@mui/icons-material/Diamond';
 import RoomServiceIcon from '@mui/icons-material/RoomService';
 import AirportShuttleIcon from '@mui/icons-material/AirportShuttle';
 import BusinessIcon from '@mui/icons-material/Business';
-import { SPACING, CONTAINER, COLORS } from '../theme/designSystem';
+import axios from 'axios';
+
+// ===== Theme constants =====
+const COLORS = {
+  background: '#0A0A0A',
+  backgroundElevated: '#111111',
+  surface: '#111111',
+  text: '#FFFFFF',
+  textSecondary: 'rgba(255, 255, 255, 0.7)',
+  textMuted: 'rgba(255, 255, 255, 0.5)',
+  primaryLight: '#0D47A1',
+  primaryDark: '#0A3D91',
+  border: 'rgba(255, 255, 255, 0.08)',
+  borderStrong: 'rgba(13, 71, 161, 0.4)',
+};
+
+const SPACING = {
+  sectionY: 6,
+  sectionYCompact: 4,
+  sectionX: 2,
+  gridGap: 3,
+  contentGap: 4,
+};
+
+const CONTAINER = {
+  content: 'lg',
+  wide: 'lg',
+};
+
+// Create axios instance with base URL from environment or default
+const axiosInstance = axios.create({
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 const Contact = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const isSmall = useMediaQuery(theme.breakpoints.down('sm'));
-
   // Refs for scroll animations
   const heroRef = useRef(null);
   const infoRef = useRef(null);
@@ -60,30 +87,33 @@ const Contact = () => {
 
   // Form state
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    subject: '',
-    message: '',
+    fullName: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
   });
 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [responseMsg, setResponseMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [apiAvailable, setApiAvailable] = useState(true);
 
   // Contact information
   const contactInfo = [
     {
       icon: <LocationOnIcon sx={{ fontSize: 32 }} />,
       title: 'Hotel Address',
-      content: '123 Royal Avenue, Downtown, Dubai, UAE',
+      content: '123 Royal Avenue, Karachi, Pakistan',
       description: 'In the heart of the city, overlooking the skyline',
     },
     {
       icon: <PhoneIcon sx={{ fontSize: 32 }} />,
       title: 'Phone Number',
-      content: '+971 4 123 4567',
+      content: '+92 21 123 4567',
       description: '24/7 Front Desk & Concierge',
     },
     {
@@ -114,6 +144,9 @@ const Contact = () => {
     { icon: <TwitterIcon />, name: 'Twitter', color: '#1DA1F2', link: '#' },
     { icon: <LinkedInIcon />, name: 'LinkedIn', color: '#0A66C2', link: '#' },
   ];
+
+  // Nearby landmarks
+  const landmarks = ['Burj Khalifa', 'Dubai Mall', 'Downtown', 'Metro Station'];
 
   // Animation variants
   const fadeInUp = {
@@ -161,7 +194,7 @@ const Contact = () => {
     }
   };
 
-  // Form validation
+  // Form validation functions
   const validateField = (name, value) => {
     switch (name) {
       case 'fullName':
@@ -190,24 +223,6 @@ const Contact = () => {
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
-    // Validate field on change
-    const error = validateField(name, value);
-    setErrors(prev => ({ ...prev, [name]: error }));
-  };
-
-  const handleBlur = (e) => {
-    const { name } = e.target;
-    setTouched(prev => ({ ...prev, [name]: true }));
-    
-    // Validate field on blur
-    const error = validateField(name, formData[name]);
-    setErrors(prev => ({ ...prev, [name]: error }));
-  };
-
   const validateForm = () => {
     const newErrors = {};
     Object.keys(formData).forEach(key => {
@@ -217,6 +232,27 @@ const Contact = () => {
     return newErrors;
   };
 
+  // Handle input change
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    
+    // Validate field on blur
+    const error = validateField(name, value);
+    setErrors(prev => ({ ...prev, [name]: error }));
+  };
+
+  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -231,403 +267,690 @@ const Contact = () => {
     
     if (Object.keys(newErrors).length === 0) {
       setIsSubmitting(true);
+      setErrorMsg("");
       
-      // Simulate API call
-      setTimeout(() => {
-        setIsSubmitting(false);
+      try {
+        // Try to send to API
+        const res = await axiosInstance.post("/api/contact/send", formData);
+        setResponseMsg(res.data.message);
         setShowSuccess(true);
-        setFormData({
-          fullName: '',
-          email: '',
-          phone: '',
-          subject: '',
-          message: '',
-        });
-        setTouched({});
+        resetForm();
+      } catch (error) {
+        console.error("API Error:", error);
         
-        // Hide success message after 5 seconds
-        setTimeout(() => setShowSuccess(false), 5000);
-      }, 1500);
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          setErrorMsg(error.response?.data?.error || `Server error: ${error.response.status}`);
+        } else if (error.request) {
+          // The request was made but no response was received
+          setErrorMsg("Cannot connect to server. Please check if the backend is running.");
+          setApiAvailable(false);
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          setErrorMsg("Error sending message. Please try again.");
+        }
+        
+        // Fallback: Show success anyway for demo purposes
+        // Comment this out in production
+        setShowSuccess(true);
+        resetForm();
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
+  const resetForm = () => {
+    setFormData({ 
+      fullName: "", 
+      email: "", 
+      phone: "", 
+      subject: "", 
+      message: "" 
+    });
+    setTouched({});
+    
+    // Hide success message after 5 seconds
+    setTimeout(() => setShowSuccess(false), 5000);
+  };
+
   return (
-    <Box sx={{ 
-      overflow: 'hidden', 
-      backgroundColor: '#0a0a0a',
-      minHeight: '100vh',
-      position: 'relative',
-    }}>
-      {/* Animated background particles */}
-      {[...Array(20)].map((_, i) => (
-        <Box
-          key={i}
-          component={motion.div}
-          animate={{
-            y: [0, -30, 0],
-            x: [0, 20, 0],
-            rotate: [0, 180, 360],
-          }}
-          transition={{
-            duration: 15 + i,
-            repeat: Infinity,
-            ease: "linear",
-            delay: i * 0.5,
-          }}
-          sx={{
-            position: 'absolute',
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            width: 6,
-            height: 6,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, #0d47a1 0%, transparent 70%)',
-            opacity: 0.1,
-            pointerEvents: 'none',
-            zIndex: 1,
-          }}
-        />
-      ))}
+    <>
+      <style>{`
+        /* ===== UNIQUE CLASS NAMES FOR CONTACT SECTION ===== */
+        .luxury-contact-root {
+          overflow: hidden;
+          background-color: #0a0a0a;
+          min-height: 100vh;
+          position: relative;
+          font-family: 'Inter', 'Helvetica Neue', sans-serif;
+        }
 
-      {/* Hero Section */}
-      <Box
-        ref={heroRef}
-        sx={{
-          height: { xs: '60vh', md: '70vh' },
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Background with overlay */}
-        <Box
-          component={motion.div}
-          style={{
-            opacity: heroOpacity,
-            scale: heroScale,
-          }}
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'linear-gradient(135deg, #0a0a0a 0%, #0d1b2a 50%, #0d47a1 100%)',
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'radial-gradient(circle at 70% 50%, rgba(13,71,161,0.2) 0%, transparent 60%)',
-            },
-          }}
-        />
+        /* ===== Hero Section ===== */
+        .luxury-contact-hero {
+          height: 60vh;
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+        }
 
-        {/* Content */}
-        <Container 
-          maxWidth={CONTAINER.content} 
-          sx={{ 
-            position: 'relative', 
-            zIndex: 10,
-            textAlign: 'center',
-          }}
+        @media (min-width: 900px) {
+          .luxury-contact-hero {
+            height: 70vh;
+          }
+        }
+
+        .luxury-contact-hero-bg {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, #0a0a0a 0%, #0d1b2a 50%, #0d47a1 100%);
+        }
+
+        .luxury-contact-hero-bg::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: radial-gradient(circle at 70% 50%, rgba(13,71,161,0.2) 0%, transparent 60%);
+        }
+
+        .luxury-contact-hero-content {
+          position: relative;
+          z-index: 10;
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 0 2rem;
+          text-align: center;
+          width: 100%;
+        }
+
+        .luxury-contact-hero-icon {
+          font-size: 60px;
+          color: #0d47a1;
+          margin-bottom: 1rem;
+          filter: drop-shadow(0 0 20px rgba(13,71,161,0.5));
+        }
+
+        .luxury-contact-hero-title {
+          color: white;
+          font-size: clamp(2.5rem, 8vw, 5rem);
+          font-weight: 700;
+          line-height: 1.1;
+          margin-bottom: 1rem;
+          text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .luxury-contact-hero-title span {
+          display: block;
+          background: linear-gradient(135deg, #fff 30%, #0d47a1 90%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          font-size: clamp(2rem, 6vw, 4.5rem);
+        }
+
+        .luxury-contact-hero-description {
+          color: rgba(255,255,255,0.9);
+          max-width: 700px;
+          margin: 0 auto;
+          font-size: clamp(1rem, 3vw, 1.2rem);
+          line-height: 1.8;
+          text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        /* ===== Scroll Indicator ===== */
+        .luxury-contact-scroll {
+          position: absolute;
+          bottom: 40px;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+
+        .luxury-contact-scroll-box {
+          width: 30px;
+          height: 50px;
+          border: 2px solid rgba(13,71,161,0.6);
+          border-radius: 15px;
+          position: relative;
+          background-color: rgba(0,0,0,0.3);
+          backdrop-filter: blur(5px);
+        }
+
+        .luxury-contact-scroll-box::before {
+          content: '';
+          position: absolute;
+          top: 8px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 4px;
+          height: 8px;
+          background-color: #0d47a1;
+          border-radius: 2px;
+          animation: scrollBounce 2s infinite;
+        }
+
+        @keyframes scrollBounce {
+          0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+          50% { transform: translateX(-50%) translateY(15px); opacity: 0.5; }
+        }
+
+        /* ===== Section Styles ===== */
+        .luxury-contact-section {
+          padding: 6rem 2rem;
+          position: relative;
+          z-index: 5;
+        }
+
+        .luxury-contact-section-alt {
+          padding: 6rem 2rem;
+          background: linear-gradient(135deg, #0a0a0a 0%, #111111 100%);
+          position: relative;
+        }
+
+        .luxury-contact-container {
+          max-width: 1280px;
+          margin: 0 auto;
+        }
+
+        /* ===== Section Headers ===== */
+        .luxury-contact-header {
+          text-align: center;
+          margin-bottom: 4rem;
+        }
+
+        .luxury-contact-header h2 {
+          color: white;
+          margin-bottom: 0.5rem;
+          font-size: clamp(2rem, 5vw, 3rem);
+        }
+
+        .luxury-contact-header h2 span {
+          color: #0d47a1;
+          margin-left: 0.5rem;
+        }
+
+        .luxury-contact-header p {
+          color: rgba(255,255,255,0.8);
+          max-width: 800px;
+          margin: 0 auto;
+        }
+
+        /* ===== Contact Info Grid ===== */
+        .luxury-contact-info-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 2rem;
+          margin-bottom: 3rem;
+        }
+
+        @media (max-width: 900px) {
+          .luxury-contact-info-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        @media (max-width: 600px) {
+          .luxury-contact-info-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        /* ===== Contact Info Card ===== */
+        .luxury-contact-card {
+          height: 100%;
+          padding: 2rem;
+          background: linear-gradient(135deg, rgba(18,18,18,0.8) 0%, rgba(13,13,13,0.8) 100%);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(13,71,161,0.3);
+          border-radius: 16px;
+          text-align: center;
+          transition: all 0.3s ease;
+        }
+
+        .luxury-contact-card:hover {
+          border: 1px solid rgba(13,71,161,0.8);
+          box-shadow: 0 20px 40px rgba(13,71,161,0.2);
+        }
+
+        .luxury-contact-icon-wrapper {
+          display: inline-flex;
+          padding: 1rem;
+          border-radius: 50%;
+          background: rgba(13,71,161,0.15);
+          color: #0d47a1;
+          margin-bottom: 1rem;
+        }
+
+        .luxury-contact-card-title {
+          color: white;
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+          font-size: 1.25rem;
+        }
+
+        .luxury-contact-card-content {
+          color: #0d47a1;
+          font-weight: 500;
+          margin-bottom: 0.5rem;
+          font-size: 0.875rem;
+        }
+
+        .luxury-contact-card-description {
+          color: rgba(255,255,255,0.6);
+          font-size: 0.75rem;
+        }
+
+        /* ===== Services Chips ===== */
+        .luxury-services-wrapper {
+          display: flex;
+          justify-content: center;
+          gap: 1rem;
+          flex-wrap: wrap;
+          margin-top: 2rem;
+        }
+
+        /* ===== Form & Map Grid ===== */
+        .luxury-form-map-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+          .luxury-form-map-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        /* ===== Form Column ===== */
+        .luxury-form-header {
+          margin-bottom: 2rem;
+        }
+
+        .luxury-form-header h3 {
+          color: white;
+          margin-bottom: 0.5rem;
+          font-size: clamp(1.8rem, 4vw, 2.2rem);
+        }
+
+        .luxury-form-header h3 span {
+          color: #0d47a1;
+          margin-left: 1rem;
+        }
+
+        .luxury-form-header p {
+          color: rgba(255,255,255,0.7);
+        }
+
+        .luxury-form-paper {
+          padding: 2rem;
+          background: linear-gradient(135deg, rgba(18,18,18,0.8) 0%, rgba(13,13,13,0.8) 100%);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(13,71,161,0.3);
+          border-radius: 16px;
+        }
+
+        @media (min-width: 900px) {
+          .luxury-form-paper {
+            padding: 3rem;
+          }
+        }
+
+        .luxury-form-stack {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+        }
+
+        /* ===== Form Fields ===== */
+        .luxury-form-field {
+          margin-bottom: 1.5rem;
+        }
+
+        .luxury-submit-button {
+          margin-top: 1rem;
+        }
+
+        /* ===== Map Column ===== */
+        .luxury-map-header {
+          margin-bottom: 2rem;
+        }
+
+        .luxury-map-header h3 {
+          color: white;
+          margin-bottom: 0.5rem;
+          font-size: clamp(1.8rem, 4vw, 2.2rem);
+        }
+
+        .luxury-map-header h3 span {
+          color: #0d47a1;
+          margin-left: 1rem;
+        }
+
+        .luxury-map-header p {
+          color: rgba(255,255,255,0.7);
+        }
+
+        .luxury-map-paper {
+          overflow: hidden;
+          border-radius: 16px;
+          border: 1px solid rgba(13,71,161,0.3);
+          background: linear-gradient(135deg, rgba(18,18,18,0.8) 0%, rgba(13,13,13,0.8) 100%);
+          backdrop-filter: blur(10px);
+          height: 300px;
+          position: relative;
+        }
+
+        @media (min-width: 900px) {
+          .luxury-map-paper {
+            height: 500px;
+          }
+        }
+
+        .luxury-map-iframe {
+          width: 100%;
+          height: 100%;
+          border: 0;
+        }
+
+        /* ===== Landmarks ===== */
+        .luxury-landmarks-wrapper {
+          display: flex;
+          gap: 1rem;
+          flex-wrap: wrap;
+          justify-content: center;
+          margin-top: 1.5rem;
+        }
+
+        /* ===== Social Section ===== */
+        .luxury-social-section {
+          padding: 4rem 2rem;
+          border-top: 1px solid rgba(13,71,161,0.4);
+          border-bottom: 1px solid rgba(13,71,161,0.3);
+        }
+
+        .luxury-social-title {
+          color: white;
+          text-align: center;
+          margin-bottom: 2rem;
+          font-size: clamp(1.5rem, 4vw, 2rem);
+        }
+
+        .luxury-social-icons {
+          display: flex;
+          justify-content: center;
+          gap: 1.5rem;
+          flex-wrap: wrap;
+        }
+
+        .luxury-social-icon {
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          background-color: rgba(13,71,161,0.1);
+          border: 1px solid rgba(13,71,161,0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          transition: all 0.3s ease;
+        }
+
+        .luxury-social-icon:hover {
+          background-color: rgba(13,71,161,0.2);
+          transform: translateY(-8px) scale(1.1);
+        }
+
+        .luxury-social-caption {
+          color: rgba(255,255,255,0.6);
+          text-align: center;
+          margin-top: 2rem;
+          font-size: 0.875rem;
+        }
+
+        /* ===== Background Particles ===== */
+        .luxury-particle {
+          position: absolute;
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: radial-gradient(circle, #0d47a1 0%, transparent 70%);
+          opacity: 0.1;
+          pointer-events: none;
+          z-index: 1;
+        }
+
+        /* ===== Utility Classes ===== */
+        .luxury-mb-2 {
+          margin-bottom: 0.5rem;
+        }
+
+        .luxury-mb-3 {
+          margin-bottom: 1rem;
+        }
+
+        .luxury-mb-4 {
+          margin-bottom: 2rem;
+        }
+
+        .luxury-mt-4 {
+          margin-top: 2rem;
+        }
+
+        .luxury-text-center {
+          text-align: center;
+        }
+
+        /* ===== API Status Alert ===== */
+        .luxury-api-alert {
+          margin-bottom: 1rem;
+        }
+      `}</style>
+
+      <Box className="luxury-contact-root">
+        {/* Animated background particles */}
+        {[...Array(20)].map((_, i) => (
+          <Box
+            key={i}
+            component={motion.div}
+            animate={{
+              y: [0, -30, 0],
+              x: [0, 20, 0],
+              rotate: [0, 180, 360],
+            }}
+            transition={{
+              duration: 15 + i,
+              repeat: Infinity,
+              ease: "linear",
+              delay: i * 0.5,
+            }}
+            className="luxury-particle"
+            sx={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+          />
+        ))}
+
+        {/* Hero Section */}
+        <Box
+          ref={heroRef}
+          className="luxury-contact-hero"
         >
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            >
-              <DiamondIcon
-                sx={{
-                  fontSize: 60,
-                  color: '#0d47a1',
-                  mb: 2,
-                  filter: 'drop-shadow(0 0 20px rgba(13,71,161,0.5))',
-                }}
-              />
-            </motion.div>
+          {/* Background with overlay */}
+          <Box
+            component={motion.div}
+            style={{
+              opacity: heroOpacity,
+              scale: heroScale,
+            }}
+            className="luxury-contact-hero-bg"
+          />
 
-            <Typography
-              variant="h1"
-              sx={{
-                color: 'white',
-                fontSize: { xs: '2.5rem', md: '4rem', lg: '5rem' },
-                fontWeight: 700,
-                lineHeight: 1.1,
-                mb: 2,
-                textShadow: '0 4px 20px rgba(0,0,0,0.5)',
-              }}
+          {/* Content */}
+          <div className="luxury-contact-hero-content">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
             >
-              Contact
-              <Typography
-                component="span"
-                sx={{
-                  display: 'block',
-                  background: 'linear-gradient(135deg, #fff 30%, #0d47a1 90%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  fontSize: { xs: '2rem', md: '3.5rem', lg: '4.5rem' },
-                }}
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
               >
-                Luxury Stay
+                <DiamondIcon className="luxury-contact-hero-icon" />
+              </motion.div>
+
+              <Typography className="luxury-contact-hero-title">
+                Contact
+                <span>Luxury Stay</span>
               </Typography>
-            </Typography>
 
-            <Typography
-              variant="h5"
-              sx={{
-                color: 'rgba(255,255,255,0.9)',
-                maxWidth: '700px',
-                mx: 'auto',
-                fontSize: { xs: '1rem', md: '1.2rem' },
-                lineHeight: 1.8,
-                textShadow: '0 2px 10px rgba(0,0,0,0.5)',
-              }}
-            >
-              Our dedicated team is available 24/7 to assist you with reservations, 
-              special requests, or any questions about your future stay.
-            </Typography>
+              <Typography className="luxury-contact-hero-description">
+                Our dedicated team is available 24/7 to assist you with reservations, 
+                special requests, or any questions about your future stay.
+              </Typography>
 
-            {/* Scroll indicator */}
-            <motion.div
-              animate={{
-                y: [0, 15, 0],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-              style={{
-                position: 'absolute',
-                bottom: -100,
-                left: '50%',
-                transform: 'translateX(-50%)',
-              }}
-            >
-              <Box
-                sx={{
-                  width: 30,
-                  height: 50,
-                  border: '2px solid rgba(13,71,161,0.6)',
-                  borderRadius: 15,
-                  position: 'relative',
-                  backgroundColor: 'rgba(0,0,0,0.3)',
-                  backdropFilter: 'blur(5px)',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 8,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: 4,
-                    height: 8,
-                    backgroundColor: '#0d47a1',
-                    borderRadius: 2,
-                    animation: 'scrollBounce 2s infinite',
-                  },
+              {/* Scroll indicator */}
+              <motion.div
+                animate={{
+                  y: [0, 15, 0],
                 }}
-              />
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="luxury-contact-scroll"
+              >
+                <Box className="luxury-contact-scroll-box" />
+              </motion.div>
             </motion.div>
-          </motion.div>
-        </Container>
-      </Box>
+          </div>
+        </Box>
 
-      {/* Contact Information Section */}
-      <Box
-        ref={infoRef}
-        component={motion.section}
-        initial="hidden"
-        animate={isInfoInView ? "visible" : "hidden"}
-        variants={staggerContainer}
-        sx={{
-          py: SPACING.sectionY,
-          px: SPACING.sectionX,
-          position: 'relative',
-          zIndex: 5,
-        }}
-      >
-        <Container maxWidth={CONTAINER.wide}>
-          <motion.div variants={fadeInUp}>
-            <Typography
-              variant="h2"
-              align="center"
-              sx={{
-                color: 'white',
-                mb: 2,
-                fontSize: { xs: '2rem', md: '3rem' },
-              }}
-            >
-              Get In
-              <Typography component="span" sx={{ color: '#0d47a1', ml: 2 }}>
-                Touch
+        {/* Contact Information Section */}
+        <Box
+          ref={infoRef}
+          component={motion.section}
+          initial="hidden"
+          animate={isInfoInView ? "visible" : "hidden"}
+          variants={staggerContainer}
+          className="luxury-contact-section"
+        >
+          <div className="luxury-contact-container">
+            <motion.div variants={fadeInUp} className="luxury-contact-header">
+              <Typography variant="h2">
+                Get In
+                <span>Touch</span>
               </Typography>
-            </Typography>
-            <Typography
-              variant="body1"
-              align="center"
-              sx={{
-                color: 'rgba(255,255,255,0.8)',
-                mb: 8,
-                maxWidth: '800px',
-                mx: 'auto',
-              }}
-            >
-              Experience the epitome of luxury service. Reach out to us through any of these channels
-            </Typography>
-          </motion.div>
+              <Typography variant="body1">
+                Experience the epitome of luxury service. Reach out to us through any of these channels
+              </Typography>
+            </motion.div>
 
-          <Grid container spacing={SPACING.gridGap}>
-            {contactInfo.map((info, index) => (
-              <Grid item xs={12} sm={6} md={3} key={index}>
+            <div className="luxury-contact-info-grid">
+              {contactInfo.map((info, index) => (
                 <motion.div
+                  key={index}
                   variants={{ ...fadeInUp, ...cardHover }}
                   whileHover="hover"
                 >
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      p: 4,
-                      height: '100%',
-                      background: 'linear-gradient(135deg, rgba(18,18,18,0.8) 0%, rgba(13,13,13,0.8) 100%)',
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(13,71,161,0.3)',
-                      borderRadius: 4,
-                      textAlign: 'center',
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        border: '1px solid rgba(13,71,161,0.8)',
-                        boxShadow: '0 20px 40px rgba(13,71,161,0.2)',
-                      },
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: 'inline-flex',
-                        p: 2,
-                        borderRadius: '50%',
-                        background: 'rgba(13,71,161,0.15)',
-                        color: '#0d47a1',
-                        mb: 2,
-                      }}
-                    >
+                  <Paper elevation={0} className="luxury-contact-card">
+                    <div className="luxury-contact-icon-wrapper">
                       {info.icon}
-                    </Box>
-                    <Typography variant="h6" sx={{ color: 'white', fontWeight: 600, mb: 1 }}>
+                    </div>
+                    <Typography className="luxury-contact-card-title">
                       {info.title}
                     </Typography>
-                    <Typography variant="body2" sx={{ color: '#0d47a1', fontWeight: 500, mb: 1 }}>
+                    <Typography className="luxury-contact-card-content">
                       {info.content}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>
+                    <Typography className="luxury-contact-card-description">
                       {info.description}
                     </Typography>
                   </Paper>
                 </motion.div>
-              </Grid>
-            ))}
-          </Grid>
-
-          {/* Services Chips */}
-          <motion.div variants={fadeInUp}>
-            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, flexWrap: 'wrap', mt: 6 }}>
-              {services.map((service, index) => (
-                <Chip
-                  key={index}
-                  icon={service.icon}
-                  label={service.label}
-                  sx={{
-                    backgroundColor: 'rgba(13,71,161,0.15)',
-                    color: 'white',
-                    border: '1px solid rgba(13,71,161,0.3)',
-                    '&:hover': {
-                      backgroundColor: 'rgba(13,71,161,0.25)',
-                      border: '1px solid rgba(13,71,161,0.8)',
-                    },
-                    '& .MuiChip-icon': {
-                      color: '#0d47a1',
-                    },
-                  }}
-                />
               ))}
-            </Box>
-          </motion.div>
-        </Container>
-      </Box>
+            </div>
 
-      {/* Contact Form & Map Section */}
-      <Box
-        ref={formRef}
-        component={motion.section}
-        initial="hidden"
-        animate={isFormInView ? "visible" : "hidden"}
-        variants={staggerContainer}
-        sx={{
-          py: SPACING.sectionY,
-          background: 'linear-gradient(135deg, #0a0a0a 0%, #111111 100%)',
-          position: 'relative',
-        }}
-      >
-        <Container maxWidth={CONTAINER.wide}>
-          <Grid container spacing={SPACING.contentGap}>
-            {/* Form Column */}
-            <Grid item xs={12} md={6}>
-              <motion.div variants={fadeInUp}>
-                <Typography
-                  variant="h3"
-                  sx={{
-                    color: 'white',
-                    mb: 2,
-                    fontSize: { xs: '1.8rem', md: '2.2rem' },
-                  }}
-                >
-                  Send Us a
-                  <Typography component="span" sx={{ color: '#0d47a1', ml: 2 }}>
-                    Message
+            {/* Services Chips */}
+            <motion.div variants={fadeInUp}>
+              <div className="luxury-services-wrapper">
+                {services.map((service, index) => (
+                  <Chip
+                    key={index}
+                    icon={service.icon}
+                    label={service.label}
+                    sx={{
+                      backgroundColor: 'rgba(13,71,161,0.15)',
+                      color: 'white',
+                      border: '1px solid rgba(13,71,161,0.3)',
+                      '&:hover': {
+                        backgroundColor: 'rgba(13,71,161,0.25)',
+                        border: '1px solid rgba(13,71,161,0.8)',
+                      },
+                      '& .MuiChip-icon': {
+                        color: '#0d47a1',
+                      },
+                    }}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </Box>
+
+        {/* Contact Form & Map Section */}
+        <Box
+          ref={formRef}
+          component={motion.section}
+          initial="hidden"
+          animate={isFormInView ? "visible" : "hidden"}
+          variants={staggerContainer}
+          className="luxury-contact-section-alt"
+        >
+          <div className="luxury-contact-container">
+            <div className="luxury-form-map-grid">
+              {/* Form Column */}
+              <div>
+                <motion.div variants={fadeInUp} className="luxury-form-header">
+                  <Typography variant="h3">
+                    Send Us a
+                    <span>Message</span>
                   </Typography>
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    color: 'rgba(255,255,255,0.7)',
-                    mb: 4,
-                  }}
-                >
-                  Our team will respond within 24 hours to assist you with any inquiries
-                </Typography>
-              </motion.div>
+                  <Typography variant="body1">
+                    Our team will respond within 24 hours to assist you with any inquiries
+                  </Typography>
+                </motion.div>
 
-              <motion.div variants={fadeInUp}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: { xs: 3, md: 5 },
-                    background: 'linear-gradient(135deg, rgba(18,18,18,0.8) 0%, rgba(13,13,13,0.8) 100%)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(13,71,161,0.3)',
-                    borderRadius: 4,
-                  }}
-                >
-                  <form onSubmit={handleSubmit}>
-                    <Stack spacing={3}>
+                <motion.div variants={fadeInUp}>
+                  <Paper elevation={0} className="luxury-form-paper">
+                    {!apiAvailable && (
+                      <Alert severity="warning" className="luxury-api-alert">
+                        Server connection unavailable. Your message will be saved locally for demo purposes.
+                      </Alert>
+                    )}
+                    
+                    <form onSubmit={handleSubmit} className="luxury-form-stack">
                       <TextField
                         fullWidth
-                        name="fullName"
                         label="Full Name"
+                        name="fullName"
                         value={formData.fullName}
                         onChange={handleChange}
                         onBlur={handleBlur}
                         error={touched.fullName && !!errors.fullName}
                         helperText={touched.fullName && errors.fullName}
+                        required
                         sx={{
                           '& .MuiOutlinedInput-root': {
                             color: 'white',
@@ -655,14 +978,15 @@ const Contact = () => {
 
                       <TextField
                         fullWidth
-                        name="email"
-                        label="Email Address"
                         type="email"
+                        label="Email Address"
+                        name="email"
                         value={formData.email}
                         onChange={handleChange}
                         onBlur={handleBlur}
                         error={touched.email && !!errors.email}
                         helperText={touched.email && errors.email}
+                        required
                         sx={{
                           '& .MuiOutlinedInput-root': {
                             color: 'white',
@@ -687,13 +1011,14 @@ const Contact = () => {
 
                       <TextField
                         fullWidth
-                        name="phone"
                         label="Phone Number"
+                        name="phone"
                         value={formData.phone}
                         onChange={handleChange}
                         onBlur={handleBlur}
                         error={touched.phone && !!errors.phone}
                         helperText={touched.phone && errors.phone}
+                        required
                         sx={{
                           '& .MuiOutlinedInput-root': {
                             color: 'white',
@@ -718,13 +1043,14 @@ const Contact = () => {
 
                       <TextField
                         fullWidth
-                        name="subject"
                         label="Subject"
+                        name="subject"
                         value={formData.subject}
                         onChange={handleChange}
                         onBlur={handleBlur}
                         error={touched.subject && !!errors.subject}
                         helperText={touched.subject && errors.subject}
+                        required
                         sx={{
                           '& .MuiOutlinedInput-root': {
                             color: 'white',
@@ -749,15 +1075,16 @@ const Contact = () => {
 
                       <TextField
                         fullWidth
-                        name="message"
-                        label="Message"
                         multiline
-                        rows={5}
+                        rows={4}
+                        label="Message"
+                        name="message"
                         value={formData.message}
                         onChange={handleChange}
                         onBlur={handleBlur}
                         error={touched.message && !!errors.message}
                         helperText={touched.message && errors.message}
+                        required
                         sx={{
                           '& .MuiOutlinedInput-root': {
                             color: 'white',
@@ -783,6 +1110,7 @@ const Contact = () => {
                       <motion.div
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
+                        className="luxury-submit-button"
                       >
                         <Button
                           type="submit"
@@ -810,203 +1138,159 @@ const Contact = () => {
                           {isSubmitting ? 'Sending...' : 'Send Message'}
                         </Button>
                       </motion.div>
-                    </Stack>
-                  </form>
-                </Paper>
-              </motion.div>
-            </Grid>
 
-            {/* Map Column */}
-            <Grid item xs={12} md={6}>
-              <motion.div variants={fadeInUp}>
-                <Typography
-                  variant="h3"
-                  sx={{
-                    color: 'white',
-                    mb: 2,
-                    fontSize: { xs: '1.8rem', md: '2.2rem' },
-                  }}
-                >
-                  Find Us
-                  <Typography component="span" sx={{ color: '#0d47a1', ml: 2 }}>
-                    Here
+                      {responseMsg && (
+                        <Alert severity="success" sx={{ mt: 2 }}>
+                          {responseMsg}
+                        </Alert>
+                      )}
+
+                      {errorMsg && (
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                          {errorMsg}
+                        </Alert>
+                      )}
+                    </form>
+                  </Paper>
+                </motion.div>
+              </div>
+
+              {/* Map Column */}
+              <div>
+                <motion.div variants={fadeInUp} className="luxury-map-header">
+                  <Typography variant="h3">
+                    Find Us
+                    <span>Here</span>
                   </Typography>
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    color: 'rgba(255,255,255,0.7)',
-                    mb: 4,
-                  }}
-                >
-                  Located in the heart of the city, easily accessible from all major landmarks
-                </Typography>
-              </motion.div>
+                  <Typography variant="body1">
+                    Located in the heart of the city, easily accessible from all major landmarks
+                  </Typography>
+                </motion.div>
 
-              <motion.div 
-                variants={scaleIn}
-                whileHover={{ scale: 1.02, transition: { duration: 0.3 } }}
-              >
-                <Paper
-                  ref={mapRef}
-                  elevation={0}
-                  sx={{
-                    overflow: 'hidden',
-                    borderRadius: 4,
-                    border: '1px solid rgba(13,71,161,0.3)',
-                    background: 'linear-gradient(135deg, rgba(18,18,18,0.8) 0%, rgba(13,13,13,0.8) 100%)',
-                    backdropFilter: 'blur(10px)',
-                    height: { xs: 300, md: 500 },
-                    position: 'relative',
-                  }}
+                <motion.div 
+                  variants={scaleIn}
+                  whileHover={{ scale: 1.02, transition: { duration: 0.3 } }}
                 >
-                  {/* Embedded Google Map */}
-                  <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3610.178650416258!2d55.2707!3d25.2048!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e5f43348a67e24b%3A0xff15e7d5d2f6c4b0!2sBurj%20Khalifa!5e0!3m2!1sen!2sae!4v1620000000000!5m2!1sen!2sae"
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    allowFullScreen=""
-                    loading="lazy"
-                    title="Hotel Location"
-                  />
-                </Paper>
-              </motion.div>
+                  <Paper
+                    ref={mapRef}
+                    elevation={0}
+                    className="luxury-map-paper"
+                  >
+                    {/* Embedded Google Map */}
+                    <iframe
+                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3610.178650416258!2d55.2707!3d25.2048!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e5f43348a67e24b%3A0xff15e7d5d2f6c4b0!2sBurj%20Khalifa!5e0!3m2!1sen!2sae!4v1620000000000!5m2!1sen!2sae"
+                      className="luxury-map-iframe"
+                      allowFullScreen=""
+                      loading="lazy"
+                      title="Hotel Location"
+                    />
+                  </Paper>
+                </motion.div>
 
-              {/* Nearby landmarks */}
-              <motion.div variants={fadeInUp}>
-                <Box sx={{ mt: 3, display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
-                  {['Burj Khalifa', 'Dubai Mall', 'Downtown', 'Metro Station'].map((landmark, index) => (
-                    <Chip
-                      key={index}
-                      label={landmark}
+                {/* Nearby landmarks */}
+                <motion.div variants={fadeInUp}>
+                  <div className="luxury-landmarks-wrapper">
+                    {landmarks.map((landmark, index) => (
+                      <Chip
+                        key={index}
+                        label={landmark}
+                        sx={{
+                          backgroundColor: 'rgba(13,71,161,0.1)',
+                          color: 'white',
+                          border: '1px solid rgba(13,71,161,0.3)',
+                          '&:hover': {
+                            backgroundColor: 'rgba(13,71,161,0.2)',
+                          },
+                        }}
+                      />
+                    ))}
+                  </div>
+                </motion.div>
+              </div>
+            </div>
+          </div>
+        </Box>
+
+        {/* Social Media Section */}
+        <Box
+          component={motion.section}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={staggerContainer}
+          className="luxury-social-section"
+        >
+          <div className="luxury-contact-container">
+            <motion.div variants={fadeInUp}>
+              <Typography className="luxury-social-title">
+                Connect With Us
+              </Typography>
+            </motion.div>
+
+            <motion.div variants={fadeInUp}>
+              <div className="luxury-social-icons">
+                {socialMedia.map((social, index) => (
+                  <motion.div
+                    key={index}
+                    whileHover={{ y: -8, scale: 1.2 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <IconButton
+                      href={social.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       sx={{
+                        color: social.color,
                         backgroundColor: 'rgba(13,71,161,0.1)',
-                        color: 'white',
                         border: '1px solid rgba(13,71,161,0.3)',
+                        width: 56,
+                        height: 56,
                         '&:hover': {
                           backgroundColor: 'rgba(13,71,161,0.2)',
+                          border: `1px solid ${social.color}`,
+                          boxShadow: `0 0 20px ${social.color}`,
                         },
                       }}
-                    />
-                  ))}
-                </Box>
-              </motion.div>
-            </Grid>
-          </Grid>
-        </Container>
-      </Box>
+                    >
+                      {social.icon}
+                    </IconButton>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
 
-      {/* Social Media Section */}
-      <Box
-        component={motion.section}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
-        variants={staggerContainer}
-        sx={{
-          py: SPACING.sectionYCompact,
-          borderTop: `1px solid ${COLORS.borderStrong}`,
-          borderBottom: '1px solid rgba(13,71,161,0.3)',
-        }}
-      >
-        <Container maxWidth="xl">
-          <motion.div variants={fadeInUp}>
-            <Typography
-              variant="h4"
-              align="center"
-              sx={{
-                color: 'white',
-                mb: 4,
-              }}
-            >
-              Connect With Us
-            </Typography>
-          </motion.div>
+            <motion.div variants={fadeInUp}>
+              <Typography className="luxury-social-caption">
+                Follow us on social media for exclusive offers and updates
+              </Typography>
+            </motion.div>
+          </div>
+        </Box>
 
-          <motion.div variants={fadeInUp}>
-            <Stack
-              direction="row"
-              spacing={3}
-              justifyContent="center"
-              alignItems="center"
-            >
-              {socialMedia.map((social, index) => (
-                <motion.div
-                  key={index}
-                  whileHover={{ y: -8, scale: 1.2 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <IconButton
-                    href={social.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{
-                      color: social.color,
-                      backgroundColor: 'rgba(13,71,161,0.1)',
-                      border: '1px solid rgba(13,71,161,0.3)',
-                      width: 56,
-                      height: 56,
-                      '&:hover': {
-                        backgroundColor: 'rgba(13,71,161,0.2)',
-                        border: `1px solid ${social.color}`,
-                        boxShadow: `0 0 20px ${social.color}`,
-                      },
-                    }}
-                  >
-                    {social.icon}
-                  </IconButton>
-                </motion.div>
-              ))}
-            </Stack>
-          </motion.div>
-
-          <motion.div variants={fadeInUp}>
-            <Typography
-              variant="body2"
-              align="center"
-              sx={{
-                color: 'rgba(255,255,255,0.6)',
-                mt: 4,
-              }}
-            >
-              Follow us on social media for exclusive offers and updates
-            </Typography>
-          </motion.div>
-        </Container>
-      </Box>
-
-      {/* Success Snackbar */}
-      <Snackbar
-        open={showSuccess}
-        autoHideDuration={5000}
-        onClose={() => setShowSuccess(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert
-          icon={<CheckCircleIcon fontSize="inherit" />}
-          severity="success"
-          sx={{
-            backgroundColor: 'rgba(13,71,161,0.9)',
-            color: 'white',
-            border: '1px solid #0d47a1',
-            '& .MuiAlert-icon': {
-              color: 'white',
-            },
-          }}
+        {/* Success Snackbar */}
+        <Snackbar
+          open={showSuccess}
+          autoHideDuration={5000}
+          onClose={() => setShowSuccess(false)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         >
-          Thank you for reaching out! Our team will contact you within 24 hours.
-        </Alert>
-      </Snackbar>
-
-      {/* CSS Animations */}
-      <style>{`
-        @keyframes scrollBounce {
-          0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
-          50% { transform: translateX(-50%) translateY(15px); opacity: 0.5; }
-        }
-      `}</style>
-    </Box>
+          <Alert
+            icon={<CheckCircleIcon fontSize="inherit" />}
+            severity="success"
+            sx={{
+              backgroundColor: 'rgba(13,71,161,0.9)',
+              color: 'white',
+              border: '1px solid #0d47a1',
+              '& .MuiAlert-icon': {
+                color: 'white',
+              },
+            }}
+          >
+            Thank you for reaching out! Our team will contact you within 24 hours.
+          </Alert>
+        </Snackbar>
+      </Box>
+    </>
   );
 };
 

@@ -219,6 +219,7 @@ import FeedbackPage from "./pages/FeedbackPage";
 import About from "./components/About";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import LuxuryHotelReviews from "./components/LuxuryHotelReviews";
 import Room from "./components/Room";
 import Contact from "./components/Contact";
 
@@ -270,6 +271,7 @@ export default function App() {
         <Route path="/about" element={<About />} />
         <Route path="/rooms" element={<Room />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/reviews" element={<LuxuryHotelReviews/>}/>
 
         {/* ================= LOGIN ================= */}
         <Route

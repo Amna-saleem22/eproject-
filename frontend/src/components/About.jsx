@@ -3,14 +3,12 @@ import {
   Box,
   Container,
   Typography,
-  Grid,
   Card,
   CardContent,
   CardMedia,
   Paper,
   Chip,
   Button,
-  Stack,
 } from '@mui/material';
 import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
@@ -29,7 +27,52 @@ import TrackChangesIcon from '@mui/icons-material/TrackChanges';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import BusinessIcon from '@mui/icons-material/Business';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
-import { SPACING, CONTAINER, COLORS, TYPOGRAPHY, BUTTON } from '../theme/designSystem';
+
+// ===== Theme constants =====
+const COLORS = {
+  background: '#0A0A0A',
+  backgroundElevated: '#111111',
+  surface: '#111111',
+  text: '#FFFFFF',
+  textSecondary: 'rgba(255, 255, 255, 0.7)',
+  textMuted: 'rgba(255, 255, 255, 0.5)',
+  primaryLight: '#0D47A1',
+  primaryDark: '#0A3D91',
+  border: 'rgba(255, 255, 255, 0.08)',
+  borderStrong: 'rgba(13, 71, 161, 0.4)',
+};
+
+const SPACING = {
+  sectionY: 6,
+  sectionX: 2,
+  gridGap: 4,
+  contentGap: 3,
+  inlineGap: 2,
+  titleToBody: 2,
+  sectionTitleBottom: 4,
+  cardPadding: 3,
+};
+
+const TYPOGRAPHY = {
+  hero: { xs: '2.5rem', md: '4rem', lg: '5rem' },
+  h1: { xs: '2rem', md: '3rem' },
+  h2: { xs: '1.75rem', md: '2.5rem' },
+  h3: { xs: '1.5rem', md: '2rem' },
+  h4: { xs: '1.25rem', md: '1.5rem' },
+  body: { xs: '1rem', md: '1.125rem' },
+  bodySmall: { xs: '0.875rem', md: '1rem' },
+  caption: '0.75rem',
+  overline: '0.75rem',
+};
+
+const BUTTON = {
+  large: { py: 1.5, px: 4 },
+  borderRadius: 2,
+};
+
+const CONTAINER = {
+  content: 'lg',
+};
 
 const About = () => {
   // Refs for scroll animations
@@ -169,150 +212,498 @@ const About = () => {
   };
 
   return (
-    <Box sx={{ 
-      overflow: 'hidden', 
-      backgroundColor: COLORS.background,
-      minHeight: '100vh',
-      position: 'relative',
-    }}>
-      {/* Hero Section - Fixed layering */}
-      <Box
-        ref={heroRef}
-        sx={{
-          height: { xs: '80vh', md: '90vh' },
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Background with overlay - Proper layering */}
-        <Box
-          component={motion.div}
-          style={{
-            opacity: heroOpacity,
-            scale: heroScale,
-          }}
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundImage: 'url("https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80")',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'linear-gradient(135deg, rgba(10,10,10,0.9) 0%, rgba(10,10,10,0.7) 100%)',
-              zIndex: 1,
-            },
-            '&::after': {
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'radial-gradient(circle at 70% 50%, rgba(13,71,161,0.2) 0%, transparent 60%)',
-              zIndex: 2,
-            },
-          }}
-        />
+    <>
+      <style>{`
+        /* ===== UNIQUE CLASS NAMES FOR ABOUT SECTION ===== */
+        .luxury-about-root {
+          overflow: hidden;
+          background-color: ${COLORS.background};
+          min-height: 100vh;
+          position: relative;
+          font-family: 'Inter', 'Helvetica Neue', sans-serif;
+        }
 
-        {/* Content - High z-index to appear above background */}
-        <Container 
-          maxWidth={CONTAINER.content} 
-          sx={{ 
-            position: 'relative', 
-            zIndex: 10,
-          }}
-        >
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            animate="visible"
-            style={{ 
-              position: 'relative',
-              zIndex: 20,
+        /* ===== Hero Section ===== */
+        .luxury-hero-section {
+          height: 80vh;
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+        }
+
+        @media (min-width: 900px) {
+          .luxury-hero-section {
+            height: 90vh;
+          }
+        }
+
+        .luxury-hero-background {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-image: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
+          background-size: cover;
+          background-position: center;
+        }
+
+        .luxury-hero-background::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, rgba(10,10,10,0.9) 0%, rgba(10,10,10,0.7) 100%);
+          z-index: 1;
+        }
+
+        .luxury-hero-background::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: radial-gradient(circle at 70% 50%, rgba(13,71,161,0.2) 0%, transparent 60%);
+          z-index: 2;
+        }
+
+        .luxury-hero-content {
+          position: relative;
+          z-index: 10;
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 0 2rem;
+          width: 100%;
+        }
+
+        .luxury-hero-text {
+          position: relative;
+          z-index: 20;
+          text-align: center;
+        }
+
+        .luxury-hero-overline {
+          color: ${COLORS.primaryLight};
+          font-size: 0.75rem;
+          letter-spacing: 4px;
+          margin-bottom: 1rem;
+          display: block;
+          text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .luxury-hero-title {
+          color: ${COLORS.text};
+          font-size: clamp(2.5rem, 8vw, 5rem);
+          font-weight: 700;
+          line-height: 1.2;
+          margin-bottom: 1.5rem;
+          text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .luxury-hero-title span {
+          display: block;
+          background: linear-gradient(135deg, #fff 30%, ${COLORS.primaryLight} 90%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          font-size: clamp(2.75rem, 9vw, 5.5rem);
+        }
+
+        .luxury-hero-description {
+          color: ${COLORS.textSecondary};
+          max-width: 800px;
+          margin: 0 auto 2rem auto;
+          font-size: clamp(1rem, 3vw, 1.25rem);
+          line-height: 1.75;
+          text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .luxury-hero-buttons {
+          display: flex;
+          justify-content: center;
+          gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+          .luxury-hero-buttons {
+            flex-direction: column;
+            align-items: center;
+          }
+        }
+
+        /* ===== Scroll Indicator ===== */
+        .luxury-scroll-indicator {
+          position: absolute;
+          bottom: 40px;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 20;
+        }
+
+        .luxury-scroll-box {
+          width: 30px;
+          height: 50px;
+          border: 2px solid ${COLORS.borderStrong};
+          border-radius: 15px;
+          position: relative;
+          background-color: rgba(0,0,0,0.2);
+          backdrop-filter: blur(5px);
+        }
+
+        .luxury-scroll-box::before {
+          content: '';
+          position: absolute;
+          top: 8px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 4px;
+          height: 8px;
+          background-color: ${COLORS.primaryLight};
+          border-radius: 2px;
+          animation: scrollBounce 2s infinite;
+        }
+
+        @keyframes scrollBounce {
+          0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+          50% { transform: translateX(-50%) translateY(15px); opacity: 0.5; }
+        }
+
+        /* ===== Achievements Bar ===== */
+        .luxury-achievements-wrapper {
+          max-width: 1280px;
+          margin: -3rem auto 0 auto;
+          padding: 0 2rem;
+          position: relative;
+          z-index: 30;
+        }
+
+        .luxury-achievements-paper {
+          padding: 2rem;
+          background: ${COLORS.backgroundElevated};
+          backdrop-filter: blur(10px);
+          border-radius: 8px;
+          border: 1px solid ${COLORS.borderStrong};
+          box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .luxury-achievements-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1.5rem;
+          align-items: center;
+        }
+
+        @media (max-width: 640px) {
+          .luxury-achievements-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        .luxury-achievement-item {
+          text-align: center;
+        }
+
+        .luxury-achievement-icon {
+          color: ${COLORS.primaryLight};
+          margin-bottom: 0.5rem;
+          font-size: 2rem;
+        }
+
+        .luxury-achievement-number {
+          color: ${COLORS.text};
+          font-weight: 700;
+          font-size: clamp(1.25rem, 4vw, 2rem);
+        }
+
+        .luxury-achievement-label {
+          color: ${COLORS.textSecondary};
+          font-size: 0.875rem;
+        }
+
+        /* ===== Section Styles ===== */
+        .luxury-section {
+          padding: 6rem 2rem;
+        }
+
+        .luxury-section-alt {
+          padding: 6rem 2rem;
+          background: linear-gradient(135deg, ${COLORS.background} 0%, #111111 100%);
+          position: relative;
+        }
+
+        .luxury-section-alt::before,
+        .luxury-section-alt::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, ${COLORS.primaryLight}, transparent);
+        }
+
+        .luxury-section-alt::before {
+          top: 0;
+        }
+
+        .luxury-section-alt::after {
+          bottom: 0;
+        }
+
+        .luxury-container {
+          max-width: 1280px;
+          margin: 0 auto;
+        }
+
+        /* ===== History Section ===== */
+        .luxury-history-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 4rem;
+          align-items: center;
+        }
+
+        @media (max-width: 900px) {
+          .luxury-history-grid {
+            grid-template-columns: 1fr;
+            gap: 3rem;
+          }
+        }
+
+        .luxury-history-title {
+          color: ${COLORS.text};
+          margin-bottom: 2rem;
+          font-size: clamp(2rem, 5vw, 3rem);
+          line-height: 1.3;
+        }
+
+        .luxury-history-title span {
+          color: ${COLORS.primaryLight};
+          margin-left: 0.5rem;
+        }
+
+        .luxury-history-feature {
+          display: flex;
+          align-items: center;
+          margin-bottom: 2rem;
+          gap: 1rem;
+        }
+
+        .luxury-history-icon {
+          color: ${COLORS.primaryLight};
+          font-size: 2rem;
+        }
+
+        .luxury-history-subtitle {
+          color: ${COLORS.text};
+          font-weight: 500;
+          font-size: clamp(1.25rem, 3vw, 1.5rem);
+        }
+
+        .luxury-history-text {
+          color: ${COLORS.textSecondary};
+          margin-bottom: 2rem;
+          line-height: 1.75;
+          font-size: clamp(0.875rem, 2vw, 1rem);
+        }
+
+        .luxury-history-chips {
+          display: flex;
+          gap: 1rem;
+          flex-wrap: wrap;
+        }
+
+        .luxury-history-image-wrapper {
+          position: relative;
+        }
+
+        .luxury-history-border {
+          position: absolute;
+          top: -16px;
+          left: -16px;
+          right: 16px;
+          bottom: 16px;
+          border: 3px solid ${COLORS.primaryLight};
+          border-radius: 8px;
+          z-index: 1;
+        }
+
+        .luxury-history-image {
+          width: 100%;
+          height: auto;
+          border-radius: 8px;
+          position: relative;
+          z-index: 2;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .luxury-timeline {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 2rem;
+          padding: 0 1rem;
+        }
+
+        .luxury-timeline-item {
+          text-align: center;
+        }
+
+        .luxury-timeline-dot {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background-color: ${COLORS.primaryLight};
+          margin-bottom: 0.5rem;
+          margin-left: auto;
+          margin-right: auto;
+          box-shadow: 0 0 10px ${COLORS.primaryLight};
+        }
+
+        .luxury-timeline-year {
+          color: ${COLORS.textSecondary};
+          font-size: 0.75rem;
+        }
+
+        /* ===== Mission & Vision Grid ===== */
+        .luxury-mission-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+          .luxury-mission-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        /* ===== Staff Grid ===== */
+        .luxury-staff-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+          .luxury-staff-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        @media (max-width: 600px) {
+          .luxury-staff-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        /* ===== Environment Grid ===== */
+        .luxury-environment-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+          .luxury-environment-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        @media (max-width: 600px) {
+          .luxury-environment-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        /* ===== Core Values Grid ===== */
+        .luxury-values-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+          .luxury-values-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        @media (max-width: 600px) {
+          .luxury-values-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        /* ===== Text Utilities ===== */
+        .luxury-text-center {
+          text-align: center;
+        }
+
+        .luxury-mb-1 {
+          margin-bottom: 0.5rem;
+        }
+
+        .luxury-mb-2 {
+          margin-bottom: 1rem;
+        }
+
+        .luxury-mb-3 {
+          margin-bottom: 1.5rem;
+        }
+
+        .luxury-mb-4 {
+          margin-bottom: 2rem;
+        }
+
+        .luxury-mx-auto {
+          margin-left: auto;
+          margin-right: auto;
+        }
+      `}</style>
+
+      <Box className="luxury-about-root">
+        {/* Hero Section */}
+        <Box ref={heroRef} className="luxury-hero-section">
+          <Box
+            component={motion.div}
+            style={{
+              opacity: heroOpacity,
+              scale: heroScale,
             }}
-          >
-            <motion.div variants={fadeInUp}>
-              <Typography
-                variant="overline"
-                align="center"
-                sx={{
-                  color: COLORS.primaryLight,
-                  fontSize: TYPOGRAPHY.overline,
-                  letterSpacing: 4,
-                  mb: SPACING.titleToBody,
-                  display: 'block',
-                  textShadow: '0 2px 10px rgba(0,0,0,0.5)',
-                }}
-              >
-                WELCOME TO
-              </Typography>
-            </motion.div>
+            className="luxury-hero-background"
+          />
 
-            <motion.div variants={fadeInUp}>
-              <Typography
-                variant="h1"
-                align="center"
-                sx={{
-                  color: COLORS.text,
-                  fontSize: TYPOGRAPHY.hero,
-                  fontWeight: 700,
-                  lineHeight: 1.2,
-                  mb: SPACING.titleToBody,
-                  textShadow: '0 4px 20px rgba(0,0,0,0.5)',
-                }}
-              >
-                A Legacy of
-                <Typography
-                  component="span"
-                  sx={{
-                    display: 'block',
-                    background: `linear-gradient(135deg, #fff 30%, ${COLORS.primaryLight} 90%)`,
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    fontSize: { xs: '2.75rem', md: '4.5rem', lg: '5.5rem' },
-                  }}
-                >
-                  Unmatched Luxury
-                </Typography>
-              </Typography>
-            </motion.div>
-
-            <motion.div variants={fadeInUp}>
-              <Typography
-                variant="h5"
-                align="center"
-                sx={{
-                  color: COLORS.textSecondary,
-                  maxWidth: 800,
-                  mx: 'auto',
-                  mb: 4,
-                  fontSize: TYPOGRAPHY.body,
-                  lineHeight: 1.75,
-                  textShadow: '0 2px 10px rgba(0,0,0,0.5)',
-                }}
-              >
-                Since 1985, we have been redefining the standards of luxury hospitality, 
-                creating unforgettable experiences for discerning travelers from around the globe.
-              </Typography>
-            </motion.div>
-
-            <motion.div 
-              variants={fadeInUp}
-              style={{ display: 'flex', justifyContent: 'center' }}
+          <div className="luxury-hero-content">
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              animate="visible"
+              className="luxury-hero-text"
             >
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={SPACING.inlineGap}>
+              <motion.div variants={fadeInUp}>
+                <Typography className="luxury-hero-overline">
+                  WELCOME TO
+                </Typography>
+              </motion.div>
+
+              <motion.div variants={fadeInUp}>
+                <Typography className="luxury-hero-title">
+                  A Legacy of
+                  <span>Unmatched Luxury</span>
+                </Typography>
+              </motion.div>
+
+              <motion.div variants={fadeInUp}>
+                <Typography className="luxury-hero-description">
+                  Since 1985, we have been redefining the standards of luxury hospitality, 
+                  creating unforgettable experiences for discerning travelers from around the globe.
+                </Typography>
+              </motion.div>
+
+              <motion.div variants={fadeInUp} className="luxury-hero-buttons">
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button
                     variant="contained"
@@ -356,151 +747,96 @@ const About = () => {
                     Meet The Team
                   </Button>
                 </motion.div>
-              </Stack>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        </Container>
+          </div>
 
-        {/* Scroll indicator */}
-        <motion.div
-          animate={{
-            y: [0, 15, 0],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          style={{
-            position: 'absolute',
-            bottom: 40,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 20,
-          }}
-        >
-          <Box
-            sx={{
-              width: 30,
-              height: 50,
-              border: `2px solid ${COLORS.borderStrong}`,
-              borderRadius: 15,
-              position: 'relative',
-              backgroundColor: 'rgba(0,0,0,0.2)',
-              backdropFilter: 'blur(5px)',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: 8,
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: 4,
-                height: 8,
-                backgroundColor: COLORS.primaryLight,
-                borderRadius: 2,
-                animation: 'scrollBounce 2s infinite',
-              },
+          <motion.div
+            animate={{
+              y: [0, 15, 0],
             }}
-          />
-        </motion.div>
-      </Box>
-
-      {/* Achievements Bar */}
-      <Container maxWidth={CONTAINER.content} sx={{ mt: -6, position: 'relative', zIndex: 30, px: SPACING.sectionX }}>
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1 }}
-        >
-          <Paper
-            elevation={24}
-            sx={{
-              p: SPACING.cardPadding,
-              background: COLORS.backgroundElevated,
-              backdropFilter: 'blur(10px)',
-              borderRadius: 2,
-              border: `1px solid ${COLORS.borderStrong}`,
-              boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
             }}
+            className="luxury-scroll-indicator"
           >
-            <Grid container spacing={SPACING.gridGap} alignItems="center">
-              {achievements.map((item, index) => (
-                <Grid item xs={6} sm={6} md={3} key={index}>
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: index * 0.2, type: "spring", stiffness: 200 }}
-                    style={{ textAlign: 'center' }}
-                  >
-                    <Box sx={{ color: COLORS.primaryLight, mb: 1, fontSize: '2rem' }}>
-                      {item.icon}
-                    </Box>
-                    <Typography variant="h4" sx={{ color: COLORS.text, fontWeight: 700, fontSize: TYPOGRAPHY.h4 }}>
-                      {item.number}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: COLORS.textSecondary }}>
-                      {item.label}
-                    </Typography>
-                  </motion.div>
-                </Grid>
-              ))}
-            </Grid>
-          </Paper>
-        </motion.div>
-      </Container>
+            <Box className="luxury-scroll-box" />
+          </motion.div>
+        </Box>
 
-      {/* History Section */}
-      <Box
-        ref={historyRef}
-        component={motion.section}
-        initial="hidden"
-        animate={isHistoryInView ? "visible" : "hidden"}
-        variants={staggerContainer}
-        sx={{
-          py: SPACING.sectionY,
-          px: SPACING.sectionX,
-        }}
-      >
-        <Container maxWidth={CONTAINER.content}>
-          <Grid container spacing={SPACING.gridGap} alignItems="center">
-            <Grid item xs={12} md={6}>
+        {/* Achievements Bar */}
+        <div className="luxury-achievements-wrapper">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1 }}
+          >
+            <Paper className="luxury-achievements-paper">
+              <div className="luxury-achievements-grid">
+                {achievements.map((item, index) => (
+                  <div key={index} className="luxury-achievement-item">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: index * 0.2, type: "spring", stiffness: 200 }}
+                    >
+                      <Box className="luxury-achievement-icon">
+                        {item.icon}
+                      </Box>
+                      <Typography className="luxury-achievement-number">
+                        {item.number}
+                      </Typography>
+                      <Typography className="luxury-achievement-label">
+                        {item.label}
+                      </Typography>
+                    </motion.div>
+                  </div>
+                ))}
+              </div>
+            </Paper>
+          </motion.div>
+        </div>
+
+        {/* History Section */}
+        <Box
+          ref={historyRef}
+          component={motion.section}
+          initial="hidden"
+          animate={isHistoryInView ? "visible" : "hidden"}
+          variants={staggerContainer}
+          className="luxury-section"
+        >
+          <div className="luxury-container">
+            <div className="luxury-history-grid">
               <motion.div variants={fadeInUp}>
-                <Typography
-                  variant="h2"
-                  sx={{
-                    color: COLORS.text,
-                    mb: SPACING.contentGap,
-                    fontSize: TYPOGRAPHY.h1,
-                    lineHeight: 1.3,
-                  }}
-                >
+                <Typography className="luxury-history-title">
                   Our
-                  <Typography component="span" sx={{ color: COLORS.primaryLight, ml: SPACING.titleToBody }}>
-                    History
-                  </Typography>
+                  <span>History</span>
                 </Typography>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: SPACING.contentGap, gap: SPACING.inlineGap }}>
-                  <HistoryIcon sx={{ color: COLORS.primaryLight, fontSize: 32 }} />
-                  <Typography variant="h5" sx={{ color: COLORS.text, fontWeight: 500, fontSize: TYPOGRAPHY.h4 }}>
+                <div className="luxury-history-feature">
+                  <HistoryIcon className="luxury-history-icon" />
+                  <Typography className="luxury-history-subtitle">
                     A Legacy of Excellence Since 1985
                   </Typography>
-                </Box>
+                </div>
 
-                <Typography variant="body1" sx={{ color: COLORS.textSecondary, mb: SPACING.contentGap, lineHeight: 1.75, fontSize: TYPOGRAPHY.body }}>
+                <Typography className="luxury-history-text">
                   Founded in 1985 by the Thompson family, Luxury Stay Hotel began as a vision 
                   to create the ultimate sanctuary for discerning travelers. What started as 
                   a modest 10-room boutique hotel has evolved into one of the world's most 
                   prestigious luxury destinations.
                 </Typography>
 
-                <Typography variant="body1" sx={{ color: COLORS.textSecondary, mb: SPACING.contentGap, lineHeight: 1.75, fontSize: TYPOGRAPHY.body }}>
+                <Typography className="luxury-history-text">
                   Over the past four decades, we have welcomed royalty, celebrities, and 
                   business leaders from every corner of the globe. Each renovation has been 
                   carefully crafted to preserve our heritage while embracing modern luxury.
                 </Typography>
 
-                <Box sx={{ display: 'flex', gap: SPACING.inlineGap, flexWrap: 'wrap' }}>
+                <div className="luxury-history-chips">
                   {['Heritage', 'Innovation', 'Excellence'].map((item, index) => (
                     <Chip
                       key={index}
@@ -517,122 +853,53 @@ const About = () => {
                       }}
                     />
                   ))}
-                </Box>
+                </div>
               </motion.div>
-            </Grid>
 
-            <Grid item xs={12} md={6}>
               <motion.div variants={scaleIn}>
-                <Box
-                  sx={{
-                    position: 'relative',
-                    '&::before': {
-                      content: '""',
-                      position: 'absolute',
-                      top: -16,
-                      left: -16,
-                      right: 16,
-                      bottom: 16,
-                      border: `3px solid ${COLORS.primaryLight}`,
-                      borderRadius: 2,
-                      zIndex: 1,
-                    },
-                  }}
-                >
+                <div className="luxury-history-image-wrapper">
+                  <div className="luxury-history-border" />
                   <Box
                     component="img"
                     src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80"
                     alt="Hotel History"
-                    sx={{
-                      width: '100%',
-                      height: 'auto',
-                      borderRadius: 2,
-                      position: 'relative',
-                      zIndex: 2,
-                      boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
-                    }}
+                    className="luxury-history-image"
                   />
-                </Box>
+                </div>
 
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: SPACING.contentGap, px: 2 }}>
+                <div className="luxury-timeline">
                   {[1985, 1995, 2005, 2015, 2025].map((year, index) => (
-                    <Box key={index} sx={{ textAlign: 'center' }}>
-                      <Box
-                        sx={{
-                          width: 12,
-                          height: 12,
-                          borderRadius: '50%',
-                          backgroundColor: COLORS.primaryLight,
-                          mb: 1,
-                          mx: 'auto',
-                          boxShadow: `0 0 10px ${COLORS.primaryLight}`,
-                        }}
-                      />
-                      <Typography variant="caption" sx={{ color: COLORS.textSecondary, fontSize: TYPOGRAPHY.caption }}>
+                    <div key={index} className="luxury-timeline-item">
+                      <div className="luxury-timeline-dot" />
+                      <Typography className="luxury-timeline-year">
                         {year}
                       </Typography>
-                    </Box>
+                    </div>
                   ))}
-                </Box>
+                </div>
               </motion.div>
-            </Grid>
-          </Grid>
-        </Container>
-      </Box>
+            </div>
+          </div>
+        </Box>
 
-      {/* Mission & Vision Section */}
-      <Box
-        ref={missionRef}
-        component={motion.section}
-        initial="hidden"
-        animate={isMissionInView ? "visible" : "hidden"}
-        variants={staggerContainer}
-        sx={{
-          py: SPACING.sectionY,
-          px: SPACING.sectionX,
-          background: `linear-gradient(135deg, ${COLORS.background} 0%, #111111 100%)`,
-          position: 'relative',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 1,
-            background: `linear-gradient(90deg, transparent, ${COLORS.primaryLight}, transparent)`,
-          },
-          '&::after': {
-            content: '""',
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 1,
-            background: `linear-gradient(90deg, transparent, ${COLORS.primaryLight}, transparent)`,
-          },
-        }}
-      >
-        <Container maxWidth={CONTAINER.content}>
-          <motion.div variants={fadeInUp}>
-            <Typography
-              variant="h2"
-              align="center"
-              sx={{
-                color: COLORS.text,
-                mb: SPACING.sectionTitleBottom,
-                fontSize: TYPOGRAPHY.h1,
-                lineHeight: 1.3,
-              }}
-            >
-              Our
-              <Typography component="span" sx={{ color: COLORS.primaryLight, ml: SPACING.titleToBody }}>
-                Purpose
+        {/* Mission & Vision Section */}
+        <Box
+          ref={missionRef}
+          component={motion.section}
+          initial="hidden"
+          animate={isMissionInView ? "visible" : "hidden"}
+          variants={staggerContainer}
+          className="luxury-section-alt"
+        >
+          <div className="luxury-container">
+            <motion.div variants={fadeInUp} className="luxury-text-center luxury-mb-4">
+              <Typography className="luxury-history-title">
+                Our
+                <span>Purpose</span>
               </Typography>
-            </Typography>
-          </motion.div>
+            </motion.div>
 
-          <Grid container spacing={SPACING.gridGap}>
-            <Grid item xs={12} md={6}>
+            <div className="luxury-mission-grid">
               <motion.div 
                 variants={fadeInUp}
                 whileHover={{ y: -10, transition: { duration: 0.3 } }}
@@ -688,9 +955,7 @@ const About = () => {
                   </CardContent>
                 </Card>
               </motion.div>
-            </Grid>
 
-            <Grid item xs={12} md={6}>
               <motion.div 
                 variants={fadeInUp}
                 whileHover={{ y: -10, transition: { duration: 0.3 } }}
@@ -746,60 +1011,42 @@ const About = () => {
                   </CardContent>
                 </Card>
               </motion.div>
-            </Grid>
-          </Grid>
-        </Container>
-      </Box>
+            </div>
+          </div>
+        </Box>
 
-      {/* Staff Section */}
-      <Box
-        ref={staffRef}
-        component={motion.section}
-        initial="hidden"
-        animate={isStaffInView ? "visible" : "hidden"}
-        variants={staggerContainer}
-        sx={{
-          py: SPACING.sectionY,
-          px: SPACING.sectionX,
-        }}
-      >
-        <Container maxWidth={CONTAINER.content}>
-          <motion.div variants={fadeInUp}>
-            <Typography
-              variant="h2"
-              align="center"
-              sx={{
-                color: COLORS.text,
-                mb: SPACING.titleToBody,
-                fontSize: TYPOGRAPHY.h1,
-                lineHeight: 1.3,
-              }}
-            >
-              Meet Our
-              <Typography component="span" sx={{ color: COLORS.primaryLight, ml: SPACING.titleToBody }}>
-                Experts
+        {/* Staff Section */}
+        <Box
+          ref={staffRef}
+          component={motion.section}
+          initial="hidden"
+          animate={isStaffInView ? "visible" : "hidden"}
+          variants={staggerContainer}
+          className="luxury-section"
+        >
+          <div className="luxury-container">
+            <motion.div variants={fadeInUp} className="luxury-text-center luxury-mb-4">
+              <Typography className="luxury-history-title">
+                Meet Our
+                <span>Experts</span>
               </Typography>
-            </Typography>
-            <Typography
-              variant="body1"
-              align="center"
-              sx={{
-                color: COLORS.textSecondary,
-                mb: SPACING.sectionTitleBottom,
-                maxWidth: 800,
-                mx: 'auto',
-                fontSize: TYPOGRAPHY.body,
-                lineHeight: 1.75,
-              }}
-            >
-              Dedicated professionals committed to making your stay extraordinary
-            </Typography>
-          </motion.div>
+              <Typography
+                sx={{
+                  color: COLORS.textSecondary,
+                  maxWidth: 800,
+                  mx: 'auto',
+                  fontSize: TYPOGRAPHY.body,
+                  lineHeight: 1.75,
+                }}
+              >
+                Dedicated professionals committed to making your stay extraordinary
+              </Typography>
+            </motion.div>
 
-          <Grid container spacing={SPACING.gridGap}>
-            {staffMembers.map((member, index) => (
-              <Grid item xs={12} sm={6} md={4} key={member.id}>
+            <div className="luxury-staff-grid">
+              {staffMembers.map((member, index) => (
                 <motion.div
+                  key={member.id}
                   variants={fadeInUp}
                   whileHover={{ 
                     y: -15, 
@@ -877,63 +1124,43 @@ const About = () => {
                     </CardContent>
                   </Card>
                 </motion.div>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      </Box>
+              ))}
+            </div>
+          </div>
+        </Box>
 
-      {/* Environment Section */}
-      <Box
-        ref={environmentRef}
-        component={motion.section}
-        initial="hidden"
-        animate={isEnvironmentInView ? "visible" : "hidden"}
-        variants={staggerContainer}
-        sx={{
-          py: SPACING.sectionY,
-          px: SPACING.sectionX,
-          background: `linear-gradient(135deg, ${COLORS.background} 0%, #111111 100%)`,
-          position: 'relative',
-        }}
-      >
-        <Container maxWidth={CONTAINER.content}>
-          <motion.div variants={fadeInUp}>
-            <Typography
-              variant="h2"
-              align="center"
-              sx={{
-                color: COLORS.text,
-                mb: SPACING.titleToBody,
-                fontSize: TYPOGRAPHY.h1,
-                lineHeight: 1.3,
-              }}
-            >
-              The
-              <Typography component="span" sx={{ color: COLORS.primaryLight, ml: SPACING.titleToBody }}>
-                Environment
+        {/* Environment Section */}
+        <Box
+          ref={environmentRef}
+          component={motion.section}
+          initial="hidden"
+          animate={isEnvironmentInView ? "visible" : "hidden"}
+          variants={staggerContainer}
+          className="luxury-section-alt"
+        >
+          <div className="luxury-container">
+            <motion.div variants={fadeInUp} className="luxury-text-center luxury-mb-4">
+              <Typography className="luxury-history-title">
+                The
+                <span>Environment</span>
               </Typography>
-            </Typography>
-            <Typography
-              variant="body1"
-              align="center"
-              sx={{
-                color: COLORS.textSecondary,
-                mb: SPACING.sectionTitleBottom,
-                maxWidth: 800,
-                mx: 'auto',
-                fontSize: TYPOGRAPHY.body,
-                lineHeight: 1.75,
-              }}
-            >
-              Immerse yourself in an atmosphere of refined luxury and sophisticated comfort
-            </Typography>
-          </motion.div>
+              <Typography
+                sx={{
+                  color: COLORS.textSecondary,
+                  maxWidth: 800,
+                  mx: 'auto',
+                  fontSize: TYPOGRAPHY.body,
+                  lineHeight: 1.75,
+                }}
+              >
+                Immerse yourself in an atmosphere of refined luxury and sophisticated comfort
+              </Typography>
+            </motion.div>
 
-          <Grid container spacing={SPACING.gridGap}>
-            {environmentFeatures.map((feature, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
+            <div className="luxury-environment-grid">
+              {environmentFeatures.map((feature, index) => (
                 <motion.div
+                  key={index}
                   variants={fadeInUp}
                   whileHover={{ 
                     scale: 1.05, 
@@ -978,27 +1205,26 @@ const About = () => {
                     </Typography>
                   </Paper>
                 </motion.div>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      </Box>
+              ))}
+            </div>
+          </div>
+        </Box>
 
-      {/* Core Values Section */}
-      <Box
-        sx={{
-          py: SPACING.sectionY,
-          px: SPACING.sectionX,
-          borderTop: `1px solid ${COLORS.borderStrong}`,
-          borderBottom: `1px solid ${COLORS.border}`,
-          background: `linear-gradient(135deg, ${COLORS.background} 0%, #111111 100%)`,
-        }}
-      >
-        <Container maxWidth={CONTAINER.content}>
-          <Grid container spacing={SPACING.gridGap}>
-            {coreValues.map((item, index) => (
-              <Grid item xs={12} sm={6} md={3} key={index}>
+        {/* Core Values Section */}
+        <Box
+          sx={{
+            py: SPACING.sectionY,
+            px: SPACING.sectionX,
+            borderTop: `1px solid ${COLORS.borderStrong}`,
+            borderBottom: `1px solid ${COLORS.border}`,
+            background: `linear-gradient(135deg, ${COLORS.background} 0%, #111111 100%)`,
+          }}
+        >
+          <div className="luxury-container">
+            <div className="luxury-values-grid">
+              {coreValues.map((item, index) => (
                 <motion.div
+                  key={index}
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.15, duration: 0.6 }}
@@ -1029,20 +1255,12 @@ const About = () => {
                     </Typography>
                   </Box>
                 </motion.div>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
+              ))}
+            </div>
+          </div>
+        </Box>
       </Box>
-
-      {/* CSS Animations */}
-      <style>{`
-        @keyframes scrollBounce {
-          0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
-          50% { transform: translateX(-50%) translateY(15px); opacity: 0.5; }
-        }
-      `}</style>
-    </Box>
+    </>
   );
 };
 

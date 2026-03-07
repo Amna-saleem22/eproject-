@@ -265,3 +265,6 @@ const cancelBooking = async (id) => {
     </Container>
   );
 }
+
+
+

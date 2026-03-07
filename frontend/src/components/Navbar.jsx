@@ -56,7 +56,7 @@ const Navbar = () => {
     { text: 'Home', path: '/', icon: <HomeIcon /> },
     { text: 'About', path: '/about', icon: <InfoIcon /> },
     { text: 'Rooms', path: '/rooms', icon: <HotelIcon /> },
-    { text: 'Blog', path: '/blog', icon: <ArticleIcon /> },
+  
     { text: 'Reviews', path: '/reviews', icon: <RateReviewIcon /> },
     { text: 'Contact', path: '/contact', icon: <ContactMailIcon /> },
     { text: 'Login', path: '/login', icon: <LoginIcon /> },
