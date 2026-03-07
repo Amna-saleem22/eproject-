@@ -15,3 +15,383 @@
 8 Room assigned
       ↓
 9 Booking status = confirmed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hotel Management Website Project Documentation
+1. Project Title
+
+Hotel Management Website System
+
+Start Date: 11/feb/2026
+End Date: 11/mar/2026
+
+Developed By:
+
+Amna Saleem  and studentid 
+Maheen Qamar  and studentid 
+Laiba Inam and studentid 
+Supervisor / Instructor:
+Sir Abdullah
+
+Institute:
+Aptech Learning Surjani
+
+2. Introduction
+
+This project is a Hotel Management Website designed to help hotels manage their services online.
+The system allows users to browse rooms, check availability, and make reservations easily.
+
+This project was developed by students to solve problems related to manual hotel booking systems and provide a modern digital solution.
+
+3. Problem Statement
+
+Many hotels still manage bookings manually which causes problems such as:
+
+Booking conflicts
+
+Difficulty managing customer data
+
+Slow reservation process
+
+Poor user experience
+
+This project solves these problems by creating an online hotel management system.
+
+4. Project Objectives
+
+The main objectives of this project are:
+
+Provide an online room booking system
+
+Manage hotel rooms efficiently
+
+Improve customer experience
+
+Automate hotel management processes
+
+5. About the Hotel
+
+Luxury Hotel is a modern hotel that provides comfortable rooms and quality services to customers.
+The hotel offers services such as:
+Contact Services
+Luxury rooms
+Online booking
+Customer support
+Restaurant services
+This website helps the hotel manage its operations digitally.
+
+
+6. Features of the System
+
+The Hotel Management System provides features for both Guests (Customers) and Admin (Hotel Management) to manage hotel operations efficiently.
+
+6.1 Guest Features
+1. User Registration & Login
+
+[IMAGE PLACEHOLDER]
+
+Short Description:
+Guests can create an account on the website using the registration form.
+After registering, users can log in securely to access booking features and manage their reservations.
+
+2. Room Listing
+
+[IMAGE PLACEHOLDER]
+
+Short Description:
+Guests can view a list of available rooms along with details such as room type, price, and facilities before making a reservation.
+
+3. Room Booking Form
+
+[IMAGE PLACEHOLDER]
+
+Short Description:
+Guests can fill out a booking form to reserve a room by entering details such as check-in date, check-out date, and number of guests.
+
+4. Booking Summary Page
+
+[IMAGE PLACEHOLDER]
+
+Short Description:
+After submitting the booking form, the system displays a booking summary where guests can review their reservation details before proceeding to payment.
+
+5. Online Payment
+
+[IMAGE PLACEHOLDER]
+
+Short Description:
+Guests can complete the payment process through the payment page to confirm their booking.
+
+6. Invoice Generation
+
+[IMAGE PLACEHOLDER]
+
+Short Description:
+After successful payment, the system automatically generates an invoice for the guest as proof of booking.
+
+7. Contact / Get in Touch
+[IMAGE PLACEHOLDER]
+Short Description:
+Guests can contact the hotel through the website to send inquiries, feedback, or messages.
+
+Guest Booking Process Flow
+The booking process for guests follows these steps:
+
+Guest creates booking
+↓
+Booking status becomes Pending
+↓
+Booking summary page is displayed
+↓
+Guest proceeds to Payment page
+↓
+Payment is completed successfully
+↓
+System generates Invoice
+↓
+Admin reviews and confirms the booking
+↓
+Room is assigned to the guest
+↓
+Booking status becomes Confirmed
+
+
+6.2 Admin Panel Features
+1. Admin Dashboard
+
+[IMAGE PLACEHOLDER]
+
+Short Description:
+The admin dashboard provides an overview of the hotel system including bookings, payments, and revenue statistics.
+
+2. Revenue Chart
+
+[IMAGE PLACEHOLDER]
+
+Short Description:
+Admin can view revenue charts and analytics to monitor hotel income and booking trends.
+
+3. Booking Management
+
+[IMAGE PLACEHOLDER]
+
+Short Description:
+Admin can view all bookings, confirm reservations, and assign rooms to guests.
+
+4. Payment Management
+
+[IMAGE PLACEHOLDER]
+
+Short Description:
+Admin can view all payment records and track completed transactions.
+
+5. Room Management System
+
+[IMAGE PLACEHOLDER]
+
+Short Description:
+Admin can manage hotel rooms including adding new rooms, updating room details, and controlling room availability.
+
+6. Staff Management
+
+[IMAGE PLACEHOLDER]
+
+Short Description:
+Admin can create and manage staff accounts within the system.
+
+7. Guest Feedback Management
+
+[IMAGE PLACEHOLDER]
+
+Short Description:
+Admin can view feedback submitted by guests to improve hotel services.
+
+8. Get in Touch Messages
+
+[IMAGE PLACEHOLDER]
+
+Short Description:
+Admin can view messages sent by customers through the contact form.
+
+9. Admin Login
+
+[IMAGE PLACEHOLDER]
+
+Short Description:
+Admin can securely log in to the admin panel to manage all hotel operations.
+
+
+
+
+
+
+
+
+
+
+
+
+7. Project Demo Video
+
+[VIDEO PLACEHOLDER]
+
+Description:
+This video demonstrates the functionality of the hotel management website.
+
+8. Technologies Used
+
+The following technologies were used in this project:
+
+Frontend:
+HTML
+CSS
+Material UI
+React.js
+Axios
+
+Backend:
+Node.js
+Express.js
+
+Database:
+MongoDB 
+
+Tools:
+Visual Studio Code
+Git
+Thunder Client
+
+9. System Setup / Installation
+To run the Hotel Management System on a local machine, the following steps should be followed.
+
+Step 1: Install Required Software
+Before running the project, install the following software:
+Node.js
+MongoDB
+Code Editor (Visual Studio Code recommended)
+These tools are required to run the backend server and manage the database.
+
+Step 2: Configure Environment Variables
+Create a .env file inside the backend folder and define the following environment variables.
+MONGO_URI=mongodb://127.0.0.1:27017/hotelBooking
+JWT_SECRET=mySuperSecretKey123
+PORT=5000
+
+Description
+MONGO_URI → Connects the application to the MongoDB database
+JWT_SECRET → Used for authentication and security tokens
+PORT → Defines the port on which the backend server runs
+
+Step 3: Install Project Dependencies
+Open the terminal inside the project folder and install required packages.
+For Backend:
+npm install
+For Frontend:
+npm install
+This command installs all the required libraries used in the project.
+
+Step 4: Initialize Default System Data
+Before running the system, initial data is added to the database using special scripts.
+
+Admin Creation Script
+A script named adminCreate.js is used to create the default administrator account in the system.
+This script automatically inserts an admin user into the database so the admin panel can be accessed.
+ Admin Login:
+Email: adminAmna@example.com
+Password: Admin@123
+
+Room Seeding Script
+Another script called seedRooms.js is used to insert predefined room data into the database.
+This helps initialize the system with available rooms for testing and booking purposes.
+The script adds information such as:
+Room type
+Price
+Room availability
+Room description
+
+Step 5: Run the Backend Server
+Navigate to the backend folder and start the server using the following command:
+npm run dev
+The backend server will start on:
+http://localhost:5000
+
+Step 6: Run the Frontend Application
+Navigate to the frontend folder and start the frontend server:
+npm start
+The frontend application will open in the browser automatically.
+
+Step 7: Access the Application
+After starting both frontend and backend servers, open the application in the browser:
+http://localhost:3000
+Guests can browse rooms and make bookings, while the admin can log in to manage the system.
+
+
+
+10. ER Diagram
+[ER DIAGRAM PLACEHOLDER]
+
+Entities example:
+Users
+Rooms
+Bookings
+Payments
+Contact Messages
+Feedbacks
+Registertion Guest
+Staff 
+
+11. Students Who Worked on the Project
+
+This project was developed by the following students:
+
+Amna Saleem
+Maheen Qamar
+Laiba Inam
+
+Each student contributed to different parts of the system such as:
+
+Frontend development
+Backend development
+Database design
+Testing
+Documentation
+
+12. Testing
+
+The system was tested using:
+
+Thunder Client
+Browser testing
+
+All major features were tested to ensure the system works correctly.
+
+13. Future Improvements
+
+Future improvements may include:
+Online payment integration
+Mobile application version
+Advanced admin analytics
+
+14. Conclusion
+
+The Hotel Management Website successfully provides an online solution for hotel booking and management.
+It improves efficiency and provides a better experience for customers and hotel administrators.
+
+15. Acknowledgment
+
+We would like to thank Sir Abdullah for their guidance and support during the development of this project.
+
+Their knowledge and encouragement helped us successfully complete this project.
